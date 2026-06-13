@@ -1,0 +1,11 @@
+[pricing raw verify] ref=806333df4a77e8c5a7a69d359896a61710af52b7
+[pricing raw verify] json_url=https://raw.githubusercontent.com/mason0510/sublb-config/806333df4a77e8c5a7a69d359896a61710af52b7/pricing/model_prices_and_context_window.json
+[pricing raw verify] sha_url=https://raw.githubusercontent.com/mason0510/sublb-config/806333df4a77e8c5a7a69d359896a61710af52b7/pricing/model_prices_and_context_window.sha256
+[pricing raw verify] work_dir=/Users/houzi/code/06-production-business-money-live/sublb-config/docs/evidence/pricing_raw_verify_806333d_20260613_175814
+[pricing raw verify] directory_url_status=400（预期非 200）
+[pricing raw verify] sha256_ok=9b54300ac819b59aab656ba98307c3f9e9b36e7691ba75f00489ad9aa420e042
+[pricing raw verify] models_count=222
+[pricing raw verify] model_ok=claude-opus-4-6 input_cost_per_token=5e-06 cache_read_input_token_cost=5e-07 cache_creation_input_token_cost=6.25e-06 cache_creation_input_token_cost_above_1hr=1e-05 output_cost_per_token=2.5e-05
+[pricing raw verify] model_ok=claude-opus-4-7 input_cost_per_token=5e-06 cache_read_input_token_cost=5e-07 cache_creation_input_token_cost=6.25e-06 cache_creation_input_token_cost_above_1hr=1e-05 output_cost_per_token=2.5e-05
+[pricing raw verify] model_ok=claude-opus-4-8 input_cost_per_token=5e-06 cache_read_input_token_cost=5e-07 cache_creation_input_token_cost=6.25e-06 cache_creation_input_token_cost_above_1hr=1e-05 output_cost_per_token=2.5e-05
+[pricing raw verify] 验证完成：文件级 raw URL 可下载，hash 一致，关键 Claude pricing 存在。
