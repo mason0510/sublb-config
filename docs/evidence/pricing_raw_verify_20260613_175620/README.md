@@ -5,4 +5,4 @@
 - script: scripts/verify-pricing-raw.sh
 - result: passed
 
-See \ for raw output.
+See `verify.log` for raw output.
