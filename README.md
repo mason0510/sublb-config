@@ -2,14 +2,14 @@
 
 SubLB 自维护公开配置源。
 
-这个仓库现在是 **SubLB pricing 真值源入口**。  
+这个仓库现在是 **SubLB pricing 真值源唯一主入口**。  
 以后遇到模型价格、缓存价格、raw URL、固定 commit pin、hash 校验这类问题，默认先看这里，不再去上游仓库盲找。
 
 ## Pricing 相关文件
 
 - `pricing/model_prices_and_context_window.json`
 - `pricing/model_prices_and_context_window.sha256`
-- `docs/pricing-raw-maintenance.md`
+- `docs/pricing-raw-maintenance.md`（脚本/边界补充说明，不再重复主流程）
 - `scripts/verify-pricing-raw.sh`
 
 ## 价格字段标准口径
@@ -67,12 +67,13 @@ git rev-parse HEAD
 ./scripts/verify-pricing-raw.sh <commit>
 ```
 
-验证目标：
+这里要求 verify 脚本通过，至少确认：
 
-- 文件级 raw URL 可下载
-- 目录 raw URL 不是 200
+- 当前 fixed commit 对应的 raw 文件可用
 - `.json` 和 `.sha256` 一致
-- 关键模型条目存在
+- 关键模型条目没有丢
+
+具体校验项见 `docs/pricing-raw-maintenance.md`。
 
 ### 5. 生产/业务仓必须 pin 到这个固定 commit
 
@@ -100,9 +101,9 @@ https://raw.githubusercontent.com/mason0510/sublb-config/<commit>/pricing/model_
   - 本地 fallback / 动态 pricing / 计费测试是否一致
 - 遇到类似问题，先查本仓库，再查主业务仓代码，不要盲人摸象。
 
-## 详细说明
+## 补充说明
 
-更细的 raw 维护说明见：
+如需查看脚本实现细节和补充边界说明，再看：
 
 ```text
 docs/pricing-raw-maintenance.md
