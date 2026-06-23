@@ -92,6 +92,16 @@ https://raw.githubusercontent.com/mason0510/sublb-config/<commit>/pricing/model_
 - 目录 raw URL
 - 第三方上游仓库固定 commit
 
+## 业务仓收口检查
+
+把 pricing 仓改完并 pin 到固定 commit 后，业务仓至少再确认这 3 件事：
+
+1. `PRICING_REMOTE_URL` 和 `PRICING_REMOTE_HASH_URL` 都已经切到 **同一个 fixed commit**
+2. 动态 pricing 拉取/刷新后，目标模型价格能被实际读到
+3. 计费侧 input / output / cache write / cache read 四项价格都与本仓库一致
+
+如果这里只改了 pricing 仓，没有完成业务仓 pin/readback，就不要算完成。
+
 ## 维护原则
 
 - 以后 SubLB 自己维护自己的 pricing，不再依赖第三方 pricing 仓库做最终真值。
