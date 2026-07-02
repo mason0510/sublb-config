@@ -811,6 +811,16 @@
     "supports_vision": true,
     "tool_use_system_prompt_tokens": 346
   },
+  "claude-fable-5": {
+    "cache_creation_input_token_cost": 1.25e-05,
+    "cache_creation_input_token_cost_above_1hr": 2e-05,
+    "cache_read_input_token_cost": 1e-06,
+    "input_cost_per_token": 1e-05,
+    "litellm_provider": "anthropic",
+    "mode": "chat",
+    "output_cost_per_token": 5e-05,
+    "supports_prompt_caching": true
+  },
   "deepseek-chat": {
     "cache_read_input_token_cost": 2.8e-08,
     "input_cost_per_token": 2.8e-07,
