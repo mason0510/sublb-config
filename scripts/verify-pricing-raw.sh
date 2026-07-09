@@ -10,13 +10,17 @@ JSON_URL="${RAW_BASE}/model_prices_and_context_window.json"
 SHA_URL="${RAW_BASE}/model_prices_and_context_window.sha256"
 WORK_DIR="${WORK_DIR:-$(mktemp -d)}"
 KEEP_WORK_DIR="${KEEP_WORK_DIR:-0}"
+ARCHIVE_ROOT="${ARCHIVE_ROOT:-${TMPDIR:-/tmp}/sublb-pricing-verify-archive}"
 
 log() { printf '[pricing raw verify] %s\n' "$*"; }
 fail() { printf '[pricing raw verify][错误] %s\n' "$*" >&2; exit 1; }
 
 cleanup() {
   if [[ "${KEEP_WORK_DIR}" != "1" && -n "${WORK_DIR:-}" && -d "$WORK_DIR" ]]; then
-    rm -rf "$WORK_DIR"
+    mkdir -p "$ARCHIVE_ROOT"
+    archive_path="${ARCHIVE_ROOT}/$(basename "$WORK_DIR").$(date +%s)"
+    mv "$WORK_DIR" "$archive_path"
+    log "work_dir_archived=${archive_path}"
   fi
 }
 trap cleanup EXIT
@@ -73,6 +77,26 @@ for model, expected in required.items():
     if actual != expected:
         raise SystemExit(f'[pricing raw verify][错误] price_mismatch model={model} actual={actual} expected={expected}')
     print('[pricing raw verify] model_ok=' + model + ' ' + ' '.join(f'{k}={item.get(k)}' for k in keys))
+
+required_gpt56 = {
+    'gpt-5.6-sol': (5e-06, 3e-05, 6.25e-06, 5e-07),
+    'gpt-5.6-terra': (2.5e-06, 1.5e-05, 3.125e-06, 2.5e-07),
+    'gpt-5.6-luna': (1e-06, 6e-06, 1.25e-06, 1e-07),
+}
+gpt56_keys = [
+    'input_cost_per_token',
+    'output_cost_per_token',
+    'cache_creation_input_token_cost',
+    'cache_read_input_token_cost',
+]
+for model, expected in required_gpt56.items():
+    item = data.get(model)
+    if not item:
+        raise SystemExit(f'[pricing raw verify][错误] missing_model={model}')
+    actual = tuple(item.get(k) for k in gpt56_keys)
+    if actual != expected:
+        raise SystemExit(f'[pricing raw verify][错误] price_mismatch model={model} actual={actual} expected={expected}')
+    print('[pricing raw verify] model_ok=' + model + ' ' + ' '.join(f'{k}={item.get(k)}' for k in gpt56_keys))
 PY
 
 log "验证完成：文件级 raw URL 可下载，hash 一致，关键 Claude pricing 存在。"
