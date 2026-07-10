@@ -6293,6 +6293,96 @@
     ],
     "supports_prompt_caching": true
   },
+  "grok-4.3": {
+    "input_cost_per_token": 1.25e-06,
+    "cache_read_input_token_cost": 2e-07,
+    "output_cost_per_token": 2.5e-06,
+    "litellm_provider": "xai",
+    "mode": "chat",
+    "max_input_tokens": 128000,
+    "max_output_tokens": 16384,
+    "supports_prompt_caching": true,
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_text",
+      "description": "主力通用文本模型；适合问答、内容生成、代码辅助、日常推理。",
+      "tags": ["文本", "多用途", "缓存"],
+      "sort_order": 10
+    }
+  },
+  "grok-4.5": {
+    "input_cost_per_token": 2e-06,
+    "output_cost_per_token": 6e-06,
+    "litellm_provider": "xai",
+    "mode": "chat",
+    "max_input_tokens": 128000,
+    "max_output_tokens": 16384,
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_text",
+      "description": "高阶文本与推理模型；适合复杂分析、代码审查、多步骤任务。已真实 chat 验收。",
+      "tags": ["文本", "高阶推理", "代码审查"],
+      "sort_order": 20
+    }
+  },
+  "grok-image": {
+    "litellm_provider": "xai",
+    "mode": "image_generation",
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_image",
+      "description": "文生图；适合海报、营销图、创意草图。1K、2K 当前同价。",
+      "tags": ["文生图", "1K", "2K"],
+      "sort_order": 10,
+      "fixed_label": "按张",
+      "fixed_price": "$0.02/张"
+    }
+  },
+  "grok-image-edit": {
+    "litellm_provider": "xai",
+    "mode": "image_edit",
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_image",
+      "description": "图生图/图片编辑；适合在已有图片上修改、重绘或调整风格。",
+      "tags": ["图生图", "图片编辑"],
+      "sort_order": 20,
+      "fixed_label": "按张",
+      "fixed_price": "输出图 $0.02；输入/参考图 $0.002"
+    }
+  },
+  "grok-video": {
+    "litellm_provider": "xai",
+    "mode": "video_generation",
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_video",
+      "description": "Grok 1.0 视频生成，支持文生视频与多参考图视频。当前视频分组尚无独立账号绑定。",
+      "tags": ["文生视频", "多参考图"],
+      "sort_order": 10,
+      "fixed_label": "按秒",
+      "fixed_price": "$0.05/秒"
+    }
+  },
+  "grok-video-1.5": {
+    "litellm_provider": "xai",
+    "mode": "video_generation",
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_video",
+      "description": "Grok 1.5 首帧生视频；适合基于单张图片生成动态视频。当前同样尚未启用。",
+      "tags": ["首帧生视频", "图生视频"],
+      "sort_order": 20,
+      "fixed_label": "按秒",
+      "fixed_price": "$0.05/秒"
+    }
+  },
   "gpt-5.6-sol": {
     "cache_creation_input_token_cost": 6.25e-06,
     "cache_read_input_token_cost": 5e-07,
@@ -6307,7 +6397,14 @@
     "supports_prompt_caching": true,
     "supports_response_schema": true,
     "supports_system_messages": true,
-    "supports_tool_choice": true
+    "supports_tool_choice": true,
+    "public_catalog": {
+      "visible": true,
+      "category": "standard",
+      "description": "GPT-5.6 旗舰模型，适合深度推理、复杂工程与高难度任务。",
+      "tags": ["旗舰", "深度推理", "缓存"],
+      "sort_order": 10
+    }
   },
   "gpt-5.6-terra": {
     "cache_creation_input_token_cost": 3.125e-06,
@@ -6323,7 +6420,14 @@
     "supports_prompt_caching": true,
     "supports_response_schema": true,
     "supports_system_messages": true,
-    "supports_tool_choice": true
+    "supports_tool_choice": true,
+    "public_catalog": {
+      "visible": true,
+      "category": "standard",
+      "description": "GPT-5.6 均衡模型，适合通用生产调用和复杂开发任务。",
+      "tags": ["均衡", "多用途", "缓存"],
+      "sort_order": 20
+    }
   },
   "gpt-5.6-luna": {
     "cache_creation_input_token_cost": 1.25e-06,
@@ -6339,6 +6443,13 @@
     "supports_prompt_caching": true,
     "supports_response_schema": true,
     "supports_system_messages": true,
-    "supports_tool_choice": true
+    "supports_tool_choice": true,
+    "public_catalog": {
+      "visible": true,
+      "category": "standard",
+      "description": "GPT-5.6 低成本模型；是否可调用由管理员禁用模型配置决定。",
+      "tags": ["低成本", "高频", "缓存"],
+      "sort_order": 30
+    }
   }
 }
