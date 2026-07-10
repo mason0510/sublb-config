@@ -98,27 +98,49 @@ for model, expected in required_gpt56.items():
         raise SystemExit(f'[pricing raw verify][错误] price_mismatch model={model} actual={actual} expected={expected}')
     print('[pricing raw verify] model_ok=' + model + ' ' + ' '.join(f'{k}={item.get(k)}' for k in gpt56_keys))
 
-grok45 = data.get('grok-4.5')
-grok45_expected = {
-    'input_cost_per_token': 2e-06,
-    'cache_read_input_token_cost': 5e-07,
-    'output_cost_per_token': 6e-06,
-    'input_cost_per_token_above_200k_tokens': 4e-06,
-    'cache_read_input_token_cost_above_200k_tokens': 1e-06,
-    'output_cost_per_token_above_200k_tokens': 1.2e-05,
+grok_models = {
+    'grok-4.3': {
+        'input_cost_per_token': 1.25e-06,
+        'cache_read_input_token_cost': 2e-07,
+        'output_cost_per_token': 2.5e-06,
+        'input_cost_per_token_above_200k_tokens': 2.5e-06,
+        'cache_read_input_token_cost_above_200k_tokens': 4e-07,
+        'output_cost_per_token_above_200k_tokens': 5e-06,
+        'max_input_tokens': 1000000,
+    },
+    'grok-4.5': {
+        'input_cost_per_token': 2e-06,
+        'cache_read_input_token_cost': 5e-07,
+        'output_cost_per_token': 6e-06,
+        'input_cost_per_token_above_200k_tokens': 4e-06,
+        'cache_read_input_token_cost_above_200k_tokens': 1e-06,
+        'output_cost_per_token_above_200k_tokens': 1.2e-05,
+        'max_input_tokens': 500000,
+    },
+    'grok-4.20-beta': {
+        'input_cost_per_token': 1.25e-06,
+        'cache_read_input_token_cost': 2e-07,
+        'output_cost_per_token': 2.5e-06,
+        'input_cost_per_token_above_200k_tokens': 2.5e-06,
+        'cache_read_input_token_cost_above_200k_tokens': 4e-07,
+        'output_cost_per_token_above_200k_tokens': 5e-06,
+        'max_input_tokens': 1000000,
+    },
 }
-if not grok45:
-    raise SystemExit('[pricing raw verify][错误] missing_model=grok-4.5')
-for key, expected in grok45_expected.items():
-    actual = grok45.get(key)
-    if actual != expected:
-        raise SystemExit(
-            f'[pricing raw verify][错误] price_mismatch model=grok-4.5 key={key} '
-            f'actual={actual} expected={expected}'
-        )
-print('[pricing raw verify] model_ok=grok-4.5 ' + ' '.join(
-    f'{key}={grok45.get(key)}' for key in grok45_expected
-))
+for model, expected_fields in grok_models.items():
+    item = data.get(model)
+    if not item:
+        raise SystemExit(f'[pricing raw verify][错误] missing_model={model}')
+    for key, expected in expected_fields.items():
+        actual = item.get(key)
+        if actual != expected:
+            raise SystemExit(
+                f'[pricing raw verify][错误] price_mismatch model={model} key={key} '
+                f'actual={actual} expected={expected}'
+            )
+    print('[pricing raw verify] model_ok=' + model + ' ' + ' '.join(
+        f'{key}={item.get(key)}' for key in expected_fields
+    ))
 PY
 
 log "验证完成：文件级 raw URL 可下载，hash 一致，关键 Claude pricing 存在。"

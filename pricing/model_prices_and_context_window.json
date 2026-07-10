@@ -6294,13 +6294,17 @@
     "supports_prompt_caching": true
   },
   "grok-4.3": {
-    "input_cost_per_token": 1.25e-06,
     "cache_read_input_token_cost": 2e-07,
+    "cache_read_input_token_cost_above_200k_tokens": 4e-07,
+    "input_cost_per_token": 1.25e-06,
+    "input_cost_per_token_above_200k_tokens": 2.5e-06,
     "output_cost_per_token": 2.5e-06,
+    "output_cost_per_token_above_200k_tokens": 5e-06,
     "litellm_provider": "xai",
     "mode": "chat",
-    "max_input_tokens": 128000,
+    "max_input_tokens": 1000000,
     "max_output_tokens": 16384,
+    "source": "https://docs.x.ai/developers/pricing",
     "supports_prompt_caching": true,
     "public_catalog": {
       "visible": true,
@@ -6310,6 +6314,21 @@
       "tags": ["文本", "多用途", "缓存"],
       "sort_order": 10
     }
+  },
+  "grok-4.20-beta": {
+    "cache_read_input_token_cost": 2e-07,
+    "cache_read_input_token_cost_above_200k_tokens": 4e-07,
+    "input_cost_per_token": 1.25e-06,
+    "input_cost_per_token_above_200k_tokens": 2.5e-06,
+    "output_cost_per_token": 2.5e-06,
+    "output_cost_per_token_above_200k_tokens": 5e-06,
+    "litellm_provider": "xai",
+    "mode": "chat",
+    "max_input_tokens": 1000000,
+    "max_output_tokens": 16384,
+    "source": "https://docs.x.ai/developers/pricing",
+    "supports_prompt_caching": true,
+    "supports_vision": true
   },
   "grok-4.5": {
     "cache_read_input_token_cost": 5e-07,
@@ -6345,7 +6364,7 @@
       "tags": ["文生图", "1K", "2K"],
       "sort_order": 10,
       "fixed_label": "按张",
-      "fixed_price": "$0.02/张"
+      "fixed_price": "输出图 $0.02（1K/2K）；输入/参考图 $0.002"
     }
   },
   "grok-image-edit": {
@@ -6373,7 +6392,7 @@
       "tags": ["文生视频", "多参考图"],
       "sort_order": 10,
       "fixed_label": "按秒",
-      "fixed_price": "$0.05/秒"
+      "fixed_price": "480p $0.05/秒；720p $0.07/秒；视频输入 $0.01/秒；图片输入 $0.002/张"
     }
   },
   "grok-video-1.5": {
@@ -6387,7 +6406,7 @@
       "tags": ["首帧生视频", "图生视频"],
       "sort_order": 20,
       "fixed_label": "按秒",
-      "fixed_price": "$0.05/秒"
+      "fixed_price": "480p $0.08/秒；720p $0.14/秒；1080p $0.25/秒；图片输入 $0.01/张"
     }
   },
   "gpt-5.6-sol": {
