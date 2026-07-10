@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 将已发布的 sublb-config commit SHA 写入 SubLB 受控 pricing pin，并做完整 readback。
-# 密钥文件必须是权限 0600 的单行原始 admin key；脚本不读取 .env，也不会打印密钥。
+# admin key 默认仅从本机 ~/.codex/secrets 的权限 0600 env 文件读取；脚本不会打印密钥。
 
 set -euo pipefail
 
@@ -11,7 +11,8 @@ readonly ADMIN_PIN_PATH="/api/v1/admin/settings/pricing-config-commit"
 readonly PUBLIC_PRICING_PATH="/api/v1/status/models/pricing"
 
 BASE_URL=""
-KEY_FILE=""
+ENV_FILE="${HOME}/.codex/secrets/sub2api-admin-keys.env"
+KEY_VAR=""
 COMMIT_SHA=""
 MODEL="grok-4.5"
 EVIDENCE_DIR=""
@@ -24,19 +25,20 @@ usage() {
 用法：
   activate-pricing-pin.sh \
     --base-url https://sub-lb.tap365.org \
-    --key-file /secure/path/admin.key \
     --commit <40位小写commit SHA> \
     --evidence-dir <目录> \
-    [--model grok-4.5] [--dry-run]
+    [--env-file ~/.codex/secrets/sub2api-admin-keys.env] \
+    [--key-var SUB2API_ADMIN_KEY_SUB_LB] [--model grok-4.5] [--dry-run]
 
 流程：
   1. 校验指定 commit 的 GitHub raw JSON、SHA256 与目标模型；
-  2. GET 管理员 pin 接口做鉴权预检；
+  2. 从本机 ~/.codex/secrets/sub2api-admin-keys.env 读取站点对应 key，并做 GET 鉴权预检；
   3. PUT commit SHA（后端再次下载、校验 SHA256 并立即激活）；
   4. GET 回读 active pin，并从公开 pricing 快照确认目标模型已加载；
   5. 在 --evidence-dir 写入证据；远程 pricing 原文为公开数据，管理员响应只写脱敏摘要。
 
 --dry-run 只执行第 1、2 步，不会发送 PUT。
+默认仅适用于 https://sub-lb.tap365.org；其他站点必须显式传 --key-var，禁止跨站复用 key。
 EOF
 }
 
@@ -55,6 +57,38 @@ file_mode() {
     return
   fi
   stat -c '%a' "$1"
+}
+
+load_env_value() {
+  local env_file="$1"
+  local key="$2"
+  local line value="" found=false
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%$'\r'}"
+    line="${line#"${line%%[![:space:]]*}"}"
+    case "$line" in
+      "$key="*)
+        [[ "$found" == false ]] || die "$env_file 中重复定义了 $key"
+        value="${line#*=}"
+        found=true
+        ;;
+      "export $key="*)
+        [[ "$found" == false ]] || die "$env_file 中重复定义了 $key"
+        value="${line#*=}"
+        found=true
+        ;;
+    esac
+  done <"$env_file"
+
+  [[ "$found" == true ]] || die "$env_file 未定义 $key"
+  if [[ "$value" == \"*\" && "$value" == *\" ]]; then
+    value="${value:1:${#value}-2}"
+  elif [[ "$value" == \'*\' && "$value" == *\' ]]; then
+    value="${value:1:${#value}-2}"
+  fi
+  [[ -n "$value" && "$value" != *$'\n'* && "$value" != *$'\r'* && "$value" != *'"'* && "$value" != *"'"* && "$value" != *' '* ]] || die "$env_file 中的 $key 格式非法"
+  printf '%s' "$value"
 }
 
 save_evidence() {
@@ -155,7 +189,8 @@ verify_public_model() {
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --base-url) BASE_URL="${2:-}"; shift 2 ;;
-    --key-file) KEY_FILE="${2:-}"; shift 2 ;;
+    --env-file) ENV_FILE="${2:-}"; shift 2 ;;
+    --key-var) KEY_VAR="${2:-}"; shift 2 ;;
     --commit) COMMIT_SHA="${2:-}"; shift 2 ;;
     --model) MODEL="${2:-}"; shift 2 ;;
     --evidence-dir) EVIDENCE_DIR="${2:-}"; shift 2 ;;
@@ -170,15 +205,26 @@ require_command jq
 require_command shasum
 [[ "$BASE_URL" =~ ^https://[^/?#]+$ ]] || die "--base-url 必须是无路径的 HTTPS 地址"
 BASE_URL="${BASE_URL%/}"
+if [[ -z "$KEY_VAR" ]]; then
+  case "$BASE_URL" in
+    https://sub-lb.tap365.org) KEY_VAR="SUB2API_ADMIN_KEY_SUB_LB" ;;
+    *) die "非默认站点必须显式传 --key-var，禁止跨站复用管理员 key" ;;
+  esac
+fi
+[[ "$KEY_VAR" =~ ^[A-Z_][A-Z0-9_]*$ ]] || die "--key-var 格式非法"
 [[ "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]] || die "--commit 必须是 40 位小写十六进制 commit SHA"
 [[ -n "$MODEL" ]] || die "--model 不能为空"
 [[ -n "$EVIDENCE_DIR" ]] || die "--evidence-dir 不能为空"
-[[ -f "$KEY_FILE" ]] || die "--key-file 不存在或不是普通文件"
-[[ "$(file_mode "$KEY_FILE")" == "600" ]] || die "--key-file 权限必须为 0600"
+[[ -f "$ENV_FILE" ]] || die "--env-file 不存在或不是普通文件"
+[[ "$(file_mode "$ENV_FILE")" == "600" ]] || die "--env-file 权限必须为 0600"
+if git -C "$(dirname "$0")/.." ls-files --error-unmatch -- "$ENV_FILE" >/dev/null 2>&1; then
+  die "--env-file 已被 Git 跟踪，禁止使用"
+fi
+if [[ "$ENV_FILE" == ./* || "$ENV_FILE" == .env ]]; then
+  git -C "$(dirname "$0")/.." check-ignore -q -- "$ENV_FILE" || die "仓库内 --env-file 必须被 Git 忽略"
+fi
 
-IFS= read -r API_KEY <"$KEY_FILE" || true
-[[ -n "$API_KEY" && "$API_KEY" != *$'\n'* && "$API_KEY" != *$'\r'* && "$API_KEY" != *'"'* && "$API_KEY" != *"'"* && "$API_KEY" != *' '* ]] || die "--key-file 必须是单行、无空白或引号的原始 key"
-[[ "$(awk 'END {print NR}' "$KEY_FILE")" == "1" ]] || die "--key-file 必须只含一行原始 key"
+API_KEY="$(load_env_value "$ENV_FILE" "$KEY_VAR")"
 
 if [[ -e "$EVIDENCE_DIR" ]]; then
   [[ -d "$EVIDENCE_DIR" ]] || die "--evidence-dir 已存在但不是目录"
