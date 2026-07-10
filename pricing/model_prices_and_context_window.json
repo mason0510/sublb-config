@@ -6312,12 +6312,19 @@
     }
   },
   "grok-4.5": {
+    "cache_read_input_token_cost": 5e-07,
+    "cache_read_input_token_cost_above_200k_tokens": 1e-06,
     "input_cost_per_token": 2e-06,
+    "input_cost_per_token_above_200k_tokens": 4e-06,
     "output_cost_per_token": 6e-06,
+    "output_cost_per_token_above_200k_tokens": 1.2e-05,
     "litellm_provider": "xai",
     "mode": "chat",
-    "max_input_tokens": 128000,
+    "max_input_tokens": 500000,
     "max_output_tokens": 16384,
+    "source": "https://docs.x.ai/developers/models/grok-4.5",
+    "supports_prompt_caching": true,
+    "supports_vision": true,
     "public_catalog": {
       "visible": true,
       "display_only": true,

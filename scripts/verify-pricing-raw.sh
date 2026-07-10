@@ -97,6 +97,28 @@ for model, expected in required_gpt56.items():
     if actual != expected:
         raise SystemExit(f'[pricing raw verify][错误] price_mismatch model={model} actual={actual} expected={expected}')
     print('[pricing raw verify] model_ok=' + model + ' ' + ' '.join(f'{k}={item.get(k)}' for k in gpt56_keys))
+
+grok45 = data.get('grok-4.5')
+grok45_expected = {
+    'input_cost_per_token': 2e-06,
+    'cache_read_input_token_cost': 5e-07,
+    'output_cost_per_token': 6e-06,
+    'input_cost_per_token_above_200k_tokens': 4e-06,
+    'cache_read_input_token_cost_above_200k_tokens': 1e-06,
+    'output_cost_per_token_above_200k_tokens': 1.2e-05,
+}
+if not grok45:
+    raise SystemExit('[pricing raw verify][错误] missing_model=grok-4.5')
+for key, expected in grok45_expected.items():
+    actual = grok45.get(key)
+    if actual != expected:
+        raise SystemExit(
+            f'[pricing raw verify][错误] price_mismatch model=grok-4.5 key={key} '
+            f'actual={actual} expected={expected}'
+        )
+print('[pricing raw verify] model_ok=grok-4.5 ' + ' '.join(
+    f'{key}={grok45.get(key)}' for key in grok45_expected
+))
 PY
 
 log "验证完成：文件级 raw URL 可下载，hash 一致，关键 Claude pricing 存在。"
