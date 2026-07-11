@@ -132,7 +132,7 @@ api_request() {
   fi
 
   http_code="$(curl "${curl_args[@]}" <<<"$curl_config")" || die "请求 $method $path 失败：$(response_error_summary "$response_file")"
-  [[ "$http_code" =~ ^2[0-9][0-9]$ ]] || die "请求 $method $path 返回 HTTP $http_code：$(response_error_summary "$response_file")"
+  [[ "$http_code" =~ ^2[0-9][0-9]$ ]] || die "请求 $method $path 返回 HTTP ${http_code}：$(response_error_summary "$response_file")"
   jq -e '.code == 0 and (.data | type == "object")' "$response_file" >/dev/null || die "请求 $method $path 返回业务失败：$(response_error_summary "$response_file")"
   printf '%s\n' "$response_file"
 }
