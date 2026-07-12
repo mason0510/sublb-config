@@ -6375,7 +6375,7 @@
     "supports_vision": true,
     "public_catalog": {
       "visible": true,
-      "display_only": true,
+      "display_only": false,
       "category": "grok_text",
       "description": "高阶文本与推理模型；适合复杂分析、代码审查、多步骤任务。已真实 chat 验收。",
       "tags": ["文本", "高阶推理", "代码审查"],
