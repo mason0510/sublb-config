@@ -6418,60 +6418,150 @@
       "sort_order": 20
     }
   },
-  "grok-image": {
+  "grok-imagine-image": {
     "litellm_provider": "xai",
     "mode": "image_generation",
+    "input_cost_per_image": 0.002,
+    "output_cost_per_image": 0.02,
     "public_catalog": {
       "visible": true,
       "display_only": true,
       "category": "grok_image",
-      "description": "文生图；适合海报、营销图、创意草图。1K、2K 当前同价。",
-      "tags": ["文生图", "1K", "2K"],
+      "description": "xAI Imagine 标准图片生成/编辑；官方价：文本/图片到图片，1K/2K 同价。",
+      "tags": ["文生图", "图生图", "1K", "2K"],
       "sort_order": 10,
       "fixed_label": "按张",
-      "fixed_price": "输出图 $0.02（1K/2K）；输入/参考图 $0.002"
+      "fixed_price": "输入/参考图 $0.002/张；输出 1K/2K $0.02/张"
+    }
+  },
+  "grok-imagine-image-quality": {
+    "litellm_provider": "xai",
+    "mode": "image_generation",
+    "input_cost_per_image": 0.01,
+    "output_cost_per_image": 0.05,
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_image",
+      "description": "xAI Imagine 高质量图片生成/编辑；官方价按输入图片与输出分辨率计费。",
+      "tags": ["文生图", "图生图", "高质量", "1K", "2K"],
+      "sort_order": 15,
+      "fixed_label": "按张",
+      "fixed_price": "输入/参考图 $0.01/张；输出 1K $0.05/张、2K $0.07/张"
+    }
+  },
+  "grok-imagine-video": {
+    "litellm_provider": "xai",
+    "mode": "video_generation",
+    "input_cost_per_video_per_second": 0.01,
+    "input_cost_per_image": 0.002,
+    "output_cost_per_video_per_second": 0.05,
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_video",
+      "description": "xAI Imagine Video 1.0，支持文本/图片/视频到视频；按官方基础价展示，实际可叠加分组费率倍数。",
+      "tags": ["文生视频", "图生视频", "视频输入", "480p", "720p"],
+      "sort_order": 10,
+      "fixed_label": "按秒",
+      "fixed_price": "视频输入 $0.01/秒；图片输入 $0.002/张；输出 480p $0.05/秒、720p $0.07/秒"
+    }
+  },
+  "grok-imagine-video-1.5": {
+    "litellm_provider": "xai",
+    "mode": "video_generation",
+    "input_cost_per_image": 0.01,
+    "output_cost_per_video_per_second": 0.08,
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_video",
+      "description": "xAI Imagine Video 1.5，图片到视频；按官方基础价展示，实际可叠加分组费率倍数。",
+      "tags": ["图生视频", "首帧生视频", "480p", "720p", "1080p"],
+      "sort_order": 30,
+      "fixed_label": "按秒",
+      "fixed_price": "图片输入 $0.01/张；输出 480p $0.08/秒、720p $0.14/秒、1080p $0.25/秒"
+    }
+  },
+  "grok-image": {
+    "litellm_provider": "xai",
+    "mode": "image_generation",
+    "input_cost_per_image": 0.002,
+    "output_cost_per_image": 0.02,
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_image",
+      "description": "兼容旧名：等同 grok-imagine-image，按 xAI 官方 Imagine 标准图片价格展示。",
+      "tags": ["文生图", "图生图", "1K", "2K"],
+      "sort_order": 20,
+      "fixed_label": "按张",
+      "fixed_price": "输入/参考图 $0.002/张；输出 1K/2K $0.02/张"
     }
   },
   "grok-image-edit": {
     "litellm_provider": "xai",
     "mode": "image_edit",
+    "input_cost_per_image": 0.002,
+    "output_cost_per_image": 0.02,
     "public_catalog": {
       "visible": true,
       "display_only": true,
       "category": "grok_image",
-      "description": "图生图/图片编辑；适合在已有图片上修改、重绘或调整风格。",
+      "description": "兼容旧名：图片编辑按 xAI Imagine 标准图片价格展示。",
       "tags": ["图生图", "图片编辑"],
-      "sort_order": 20,
+      "sort_order": 30,
       "fixed_label": "按张",
-      "fixed_price": "输出图 $0.02；输入/参考图 $0.002"
+      "fixed_price": "输入/参考图 $0.002/张；输出 1K/2K $0.02/张"
+    }
+  },
+  "grok-imagine-video-1.5-preview": {
+    "litellm_provider": "xai",
+    "mode": "video_generation",
+    "input_cost_per_image": 0.01,
+    "output_cost_per_video_per_second": 0.08,
+    "public_catalog": {
+      "visible": true,
+      "display_only": true,
+      "category": "grok_video",
+      "description": "兼容 preview 名：等同 grok-imagine-video-1.5，按 xAI 官方 Imagine Video 1.5 价格展示。",
+      "tags": ["图生视频", "首帧生视频", "480p", "720p", "1080p"],
+      "sort_order": 35,
+      "fixed_label": "按秒",
+      "fixed_price": "图片输入 $0.01/张；输出 480p $0.08/秒、720p $0.14/秒、1080p $0.25/秒"
     }
   },
   "grok-video": {
     "litellm_provider": "xai",
     "mode": "video_generation",
+    "input_cost_per_video_per_second": 0.01,
+    "input_cost_per_image": 0.002,
+    "output_cost_per_video_per_second": 0.05,
     "public_catalog": {
       "visible": true,
       "display_only": true,
       "category": "grok_video",
-      "description": "Grok 1.0 视频生成，支持文生视频与多参考图视频。当前视频分组尚无独立账号绑定。",
-      "tags": ["文生视频", "多参考图"],
-      "sort_order": 10,
+      "description": "兼容旧名：等同 grok-imagine-video，按 xAI 官方 Imagine Video 1.0 价格展示。",
+      "tags": ["文生视频", "图生视频", "视频输入", "480p", "720p"],
+      "sort_order": 20,
       "fixed_label": "按秒",
-      "fixed_price": "480p $0.05/秒；720p $0.07/秒；视频输入 $0.01/秒；图片输入 $0.002/张"
+      "fixed_price": "视频输入 $0.01/秒；图片输入 $0.002/张；输出 480p $0.05/秒、720p $0.07/秒"
     }
   },
   "grok-video-1.5": {
     "litellm_provider": "xai",
     "mode": "video_generation",
+    "input_cost_per_image": 0.01,
+    "output_cost_per_video_per_second": 0.08,
     "public_catalog": {
       "visible": true,
       "display_only": true,
       "category": "grok_video",
-      "description": "Grok 1.5 首帧生视频；适合基于单张图片生成动态视频。当前同样尚未启用。",
-      "tags": ["首帧生视频", "图生视频"],
-      "sort_order": 20,
+      "description": "兼容旧名：等同 grok-imagine-video-1.5，按 xAI 官方 Imagine Video 1.5 价格展示。",
+      "tags": ["图生视频", "首帧生视频", "480p", "720p", "1080p"],
+      "sort_order": 40,
       "fixed_label": "按秒",
-      "fixed_price": "480p $0.08/秒；720p $0.14/秒；1080p $0.25/秒；图片输入 $0.01/张"
+      "fixed_price": "图片输入 $0.01/张；输出 480p $0.08/秒、720p $0.14/秒、1080p $0.25/秒"
     }
   },
   "gpt-5.6-sol": {
