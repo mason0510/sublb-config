@@ -2793,13 +2793,19 @@
     "supports_web_search": true
   },
   "gemini-3.1-flash-image": {
-    "cache_creation_input_token_cost": 0,
-    "cache_read_input_token_cost": 0,
+    "input_cost_per_image": 0.00056,
     "input_cost_per_token": 0.0000005,
-    "litellm_provider": "gemini",
+    "litellm_provider": "vertex_ai-language-models",
+    "max_input_tokens": 65536,
+    "max_output_tokens": 32768,
+    "max_tokens": 32768,
     "mode": "image_generation",
+    "output_cost_per_image": 0.0672,
+    "output_cost_per_image_token": 0.00006,
     "output_cost_per_token": 0.000003,
-    "output_cost_per_image": 0.067,
+    "source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "supported_modalities": ["text", "image"],
+    "supported_output_modalities": ["text", "image"],
     "public_catalog": {
       "visible": true,
       "display_only": false,
@@ -2808,7 +2814,7 @@
       "tags": ["图片生成", "图片编辑", "Nano Banana 2", "1K", "2K", "4K"],
       "sort_order": 10,
       "fixed_label": "按张",
-      "fixed_price": "输入 $0.50/M；文字输出 $3/M；图片输出 $60/M image tokens，约 0.5K $0.045/张、1K $0.067/张、2K $0.101/张、4K $0.151/张"
+      "fixed_price": "图片输出 $60/M image tokens；0.5K $0.045/张、1K $0.067/张、2K $0.101/张、4K $0.151/张"
     }
   },
   "gemini-3.1-flash-image-preview": {
