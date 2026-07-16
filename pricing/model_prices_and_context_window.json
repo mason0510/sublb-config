@@ -2792,6 +2792,25 @@
     "supports_vision": true,
     "supports_web_search": true
   },
+  "gemini-3.1-flash-image": {
+    "cache_creation_input_token_cost": 0,
+    "cache_read_input_token_cost": 0,
+    "input_cost_per_token": 0.0000005,
+    "litellm_provider": "gemini",
+    "mode": "image_generation",
+    "output_cost_per_token": 0.000003,
+    "output_cost_per_image": 0.067,
+    "public_catalog": {
+      "visible": true,
+      "display_only": false,
+      "category": "gemini_image",
+      "description": "Gemini 3.1 Flash Image（Nano Banana 2）；适合快速图片生成与编辑，按 Google 官方价格配置。",
+      "tags": ["图片生成", "图片编辑", "Nano Banana 2", "1K", "2K", "4K"],
+      "sort_order": 10,
+      "fixed_label": "按张",
+      "fixed_price": "输入 $0.50/M；文字输出 $3/M；图片输出 $60/M image tokens，约 0.5K $0.045/张、1K $0.067/张、2K $0.101/张、4K $0.151/张"
+    }
+  },
   "gemini-3.1-flash-image-preview": {
     "input_cost_per_image": 0.00056,
     "input_cost_per_token": 5e-07,
