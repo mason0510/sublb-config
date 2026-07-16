@@ -2702,6 +2702,50 @@
     "supports_vision": true,
     "supports_web_search": true
   },
+  "gemini-3-pro-image": {
+    "input_cost_per_image": 0.0011,
+    "input_cost_per_token": 2e-06,
+    "input_cost_per_token_batches": 1e-06,
+    "litellm_provider": "vertex_ai-language-models",
+    "max_input_tokens": 65536,
+    "max_output_tokens": 32768,
+    "max_tokens": 32768,
+    "mode": "image_generation",
+    "output_cost_per_image": 0.134,
+    "output_cost_per_image_token": 0.00012,
+    "output_cost_per_token": 1.2e-05,
+    "output_cost_per_token_batches": 6e-06,
+    "source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "supported_endpoints": [
+      "/v1/chat/completions",
+      "/v1/completions",
+      "/v1/batch"
+    ],
+    "supported_modalities": [
+      "text",
+      "image"
+    ],
+    "supported_output_modalities": [
+      "text",
+      "image"
+    ],
+    "supports_function_calling": false,
+    "supports_prompt_caching": true,
+    "supports_response_schema": true,
+    "supports_system_messages": true,
+    "supports_vision": true,
+    "supports_web_search": true,
+    "public_catalog": {
+      "visible": true,
+      "display_only": false,
+      "category": "gemini_image",
+      "description": "Gemini 3 Pro Image；按 gemini-3-pro-image-preview 价格配置。",
+      "tags": ["图片生成", "图片编辑", "Gemini 3 Pro", "1K", "2K", "4K"],
+      "sort_order": 20,
+      "fixed_label": "按张",
+      "fixed_price": "1K $0.1340/张、2K $0.2010/张、4K $0.2680/张"
+    }
+  },
   "gemini-3-pro-image-preview": {
     "input_cost_per_image": 0.0011,
     "input_cost_per_token": 2e-06,
@@ -2804,8 +2848,19 @@
     "output_cost_per_image_token": 0.00006,
     "output_cost_per_token": 0.000003,
     "source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "supported_endpoints": [
+      "/v1/chat/completions",
+      "/v1/completions",
+      "/v1/batch"
+    ],
     "supported_modalities": ["text", "image"],
     "supported_output_modalities": ["text", "image"],
+    "supports_function_calling": false,
+    "supports_prompt_caching": true,
+    "supports_response_schema": true,
+    "supports_system_messages": true,
+    "supports_vision": true,
+    "supports_web_search": true,
     "public_catalog": {
       "visible": true,
       "display_only": false,
@@ -2814,7 +2869,7 @@
       "tags": ["图片生成", "图片编辑", "Nano Banana 2", "1K", "2K", "4K"],
       "sort_order": 10,
       "fixed_label": "按张",
-      "fixed_price": "图片输出 $60/M image tokens；0.5K $0.045/张、1K $0.067/张、2K $0.101/张、4K $0.151/张"
+      "fixed_price": "1K $0.0672/张、2K $0.1008/张、4K $0.1512/张"
     }
   },
   "gemini-3.1-flash-image-preview": {
@@ -5876,6 +5931,92 @@
     "supports_system_messages": true,
     "supports_tool_choice": true
   },
+  "nano-banana-2": {
+    "input_cost_per_image": 0.00056,
+    "input_cost_per_token": 5e-07,
+    "litellm_provider": "vertex_ai-language-models",
+    "max_input_tokens": 65536,
+    "max_output_tokens": 32768,
+    "max_tokens": 32768,
+    "mode": "image_generation",
+    "output_cost_per_image": 0.0672,
+    "output_cost_per_image_token": 6e-05,
+    "output_cost_per_token": 3e-06,
+    "source": "https://cloud.google.com/vertex-ai/generative-ai/pricing#gemini-models",
+    "supported_endpoints": [
+      "/v1/chat/completions",
+      "/v1/completions",
+      "/v1/batch"
+    ],
+    "supported_modalities": [
+      "text",
+      "image"
+    ],
+    "supported_output_modalities": [
+      "text",
+      "image"
+    ],
+    "supports_function_calling": false,
+    "supports_prompt_caching": true,
+    "supports_response_schema": true,
+    "supports_system_messages": true,
+    "supports_vision": true,
+    "supports_web_search": true,
+    "public_catalog": {
+      "visible": true,
+      "display_only": false,
+      "category": "gemini_image",
+      "description": "Nano Banana 2；等同 gemini-3.1-flash-image-preview 价格配置。",
+      "tags": ["图片生成", "图片编辑", "Gemini 3.1 Flash Image", "1K", "2K", "4K"],
+      "sort_order": 12,
+      "fixed_label": "按张",
+      "fixed_price": "1K $0.0672/张、2K $0.1008/张、4K $0.1512/张"
+    }
+  },
+  "nano-banana-pro": {
+    "input_cost_per_image": 0.0011,
+    "input_cost_per_token": 2e-06,
+    "input_cost_per_token_batches": 1e-06,
+    "litellm_provider": "vertex_ai-language-models",
+    "max_input_tokens": 65536,
+    "max_output_tokens": 32768,
+    "max_tokens": 32768,
+    "mode": "image_generation",
+    "output_cost_per_image": 0.134,
+    "output_cost_per_image_token": 0.00012,
+    "output_cost_per_token": 1.2e-05,
+    "output_cost_per_token_batches": 6e-06,
+    "source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "supported_endpoints": [
+      "/v1/chat/completions",
+      "/v1/completions",
+      "/v1/batch"
+    ],
+    "supported_modalities": [
+      "text",
+      "image"
+    ],
+    "supported_output_modalities": [
+      "text",
+      "image"
+    ],
+    "supports_function_calling": false,
+    "supports_prompt_caching": true,
+    "supports_response_schema": true,
+    "supports_system_messages": true,
+    "supports_vision": true,
+    "supports_web_search": true,
+    "public_catalog": {
+      "visible": true,
+      "display_only": false,
+      "category": "gemini_image",
+      "description": "Nano Banana Pro；按 Gemini 3 Pro Image 价格配置。",
+      "tags": ["图片生成", "图片编辑", "Gemini 3 Pro Image", "1K", "2K", "4K"],
+      "sort_order": 22,
+      "fixed_label": "按张",
+      "fixed_price": "1K $0.1340/张、2K $0.2010/张、4K $0.2680/张"
+    }
+  },
   "o1-2024-12-17": {
     "cache_read_input_token_cost": 7.5e-06,
     "input_cost_per_token": 1.5e-05,
@@ -6475,6 +6616,23 @@
       "fixed_price": "输入/参考图 $0.01/张；输出 1K $0.05/张、2K $0.07/张"
     }
   },
+  "grok-imagine-1.0-video": {
+    "litellm_provider": "xai",
+    "mode": "video_generation",
+    "input_cost_per_video_per_second": 0.01,
+    "input_cost_per_image": 0.002,
+    "output_cost_per_video_per_second": 0.05,
+    "public_catalog": {
+      "visible": true,
+      "display_only": false,
+      "category": "grok_video",
+      "description": "兼容 1.0 名：等同 grok-imagine-video，按 xAI 官方 Imagine Video 1.0 价格展示。",
+      "tags": ["文生视频", "图生视频", "视频输入", "480p", "720p"],
+      "sort_order": 15,
+      "fixed_label": "按秒",
+      "fixed_price": "视频输入 $0.01/秒；图片输入 $0.002/张；输出 480p $0.05/秒、720p $0.07/秒"
+    }
+  },
   "grok-imagine-video": {
     "litellm_provider": "xai",
     "mode": "video_generation",
@@ -6483,7 +6641,7 @@
     "output_cost_per_video_per_second": 0.05,
     "public_catalog": {
       "visible": true,
-      "display_only": true,
+      "display_only": false,
       "category": "grok_video",
       "description": "xAI Imagine Video 1.0，支持文本/图片/视频到视频；按官方基础价展示，实际可叠加分组费率倍数。",
       "tags": ["文生视频", "图生视频", "视频输入", "480p", "720p"],
@@ -6499,7 +6657,7 @@
     "output_cost_per_video_per_second": 0.08,
     "public_catalog": {
       "visible": true,
-      "display_only": true,
+      "display_only": false,
       "category": "grok_video",
       "description": "xAI Imagine Video 1.5，图片到视频；按官方基础价展示，实际可叠加分组费率倍数。",
       "tags": ["图生视频", "首帧生视频", "480p", "720p", "1080p"],
@@ -6547,7 +6705,7 @@
     "output_cost_per_video_per_second": 0.08,
     "public_catalog": {
       "visible": true,
-      "display_only": true,
+      "display_only": false,
       "category": "grok_video",
       "description": "兼容 preview 名：等同 grok-imagine-video-1.5，按 xAI 官方 Imagine Video 1.5 价格展示。",
       "tags": ["图生视频", "首帧生视频", "480p", "720p", "1080p"],
@@ -6564,7 +6722,7 @@
     "output_cost_per_video_per_second": 0.05,
     "public_catalog": {
       "visible": true,
-      "display_only": true,
+      "display_only": false,
       "category": "grok_video",
       "description": "兼容旧名：等同 grok-imagine-video，按 xAI 官方 Imagine Video 1.0 价格展示。",
       "tags": ["文生视频", "图生视频", "视频输入", "480p", "720p"],
@@ -6580,7 +6738,7 @@
     "output_cost_per_video_per_second": 0.08,
     "public_catalog": {
       "visible": true,
-      "display_only": true,
+      "display_only": false,
       "category": "grok_video",
       "description": "兼容旧名：等同 grok-imagine-video-1.5，按 xAI 官方 Imagine Video 1.5 价格展示。",
       "tags": ["图生视频", "首帧生视频", "480p", "720p", "1080p"],
