@@ -6815,5 +6815,21 @@
       "tags": ["低成本", "高频", "缓存"],
       "sort_order": 30
     }
+  },
+  "kimi-k3": {
+    "cache_read_input_token_cost": 9e-07,
+    "input_cost_per_token": 8.1e-06,
+    "output_cost_per_token": 4.5e-05,
+    "litellm_provider": "moonshot",
+    "mode": "chat",
+    "supports_prompt_caching": true,
+    "public_catalog": {
+      "visible": true,
+      "display_only": false,
+      "category": "standard",
+      "description": "Kimi K3 文本模型；输入 $8.1/1M tokens，输出 $45/1M tokens，缓存读取 $0.9/1M tokens。",
+      "tags": ["文本", "推理", "缓存"],
+      "sort_order": 40
+    }
   }
 }
