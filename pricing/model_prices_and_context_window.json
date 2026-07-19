@@ -6842,7 +6842,7 @@
     "public_catalog": {
       "visible": true,
       "display_only": false,
-      "category": "agnes_text",
+      "category": "standard",
       "description": "Agnes 1.5 Flash 文本模型；暂按 $1/1M tokens 计价。",
       "tags": ["文本", "Chat Completions"],
       "fixed_label": "按 token",
@@ -6859,7 +6859,7 @@
     "public_catalog": {
       "visible": true,
       "display_only": false,
-      "category": "agnes_text",
+      "category": "standard",
       "description": "Agnes 2.0 Flash 文本模型；暂按 $1/1M tokens 计价。",
       "tags": ["文本", "Chat Completions"],
       "fixed_label": "按 token",
