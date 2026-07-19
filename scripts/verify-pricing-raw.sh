@@ -35,14 +35,25 @@ log "sha_url=${SHA_URL}"
 log "work_dir=${WORK_DIR}"
 
 # 目录 raw URL 应该不可用；这一步用于防止把 /pricing/ 当成 remote_url。
-DIR_STATUS="$(curl -sS -o "$WORK_DIR/raw_dir_response.txt" -w '%{http_code}' "${RAW_BASE}/" || true)"
-if [[ "$DIR_STATUS" == "200" ]]; then
-  fail "目录 raw URL 意外返回 200，请勿使用目录 URL：${RAW_BASE}/"
-fi
-log "directory_url_status=${DIR_STATUS}（预期非 200）"
+cat >"$WORK_DIR/raw-dir.hurl" <<EOF
+GET ${RAW_BASE}/
+HTTP *
+[Asserts]
+status != 200
+EOF
+hurl -o "$WORK_DIR/raw_dir_response.txt" "$WORK_DIR/raw-dir.hurl" >/dev/null || fail "目录 raw URL 意外返回 200，请勿使用目录 URL：${RAW_BASE}/"
+log "directory_url_status=non-200（预期非 200）"
 
-curl -fsSL "$JSON_URL" -o "$JSON_FILE"
-curl -fsSL "$SHA_URL" -o "$SHA_FILE"
+cat >"$WORK_DIR/raw-json.hurl" <<EOF
+GET ${JSON_URL}
+HTTP 200
+EOF
+cat >"$WORK_DIR/raw-sha.hurl" <<EOF
+GET ${SHA_URL}
+HTTP 200
+EOF
+hurl -o "$JSON_FILE" "$WORK_DIR/raw-json.hurl" >/dev/null || fail "pricing raw JSON 下载失败"
+hurl -o "$SHA_FILE" "$WORK_DIR/raw-sha.hurl" >/dev/null || fail "pricing raw SHA256 下载失败"
 
 EXPECTED_SHA="$(tr -d '[:space:]' < "$SHA_FILE")"
 ACTUAL_SHA="$(shasum -a 256 "$JSON_FILE" | awk '{print $1}')"

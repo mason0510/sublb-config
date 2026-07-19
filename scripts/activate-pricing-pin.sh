@@ -122,7 +122,7 @@ api_request() {
     fi
     printf 'HTTP *\n'
   } >"$case_file"
-  hurl --test --secret "api_key=$API_KEY" -o "$response_file" "$case_file" >/dev/null || die "请求 $method $path 失败：$(response_error_summary "$response_file")"
+  hurl --secret "api_key=$API_KEY" -o "$response_file" "$case_file" >/dev/null || die "请求 $method $path 失败：$(response_error_summary "$response_file")"
   jq -e '.code == 0 and (.data | type == "object")' "$response_file" >/dev/null || die "请求 $method $path 返回业务失败：$(response_error_summary "$response_file")"
   printf '%s\n' "$response_file"
 }
@@ -140,8 +140,8 @@ EOF
 GET $PRICING_RAW_BASE/$COMMIT_SHA/$PRICING_HASH_PATH
 HTTP 200
 EOF
-  hurl --test -o "$json_file" "$TMP_DIR/raw-json.hurl" >/dev/null || die "无法下载 pricing raw JSON"
-  hurl --test -o "$hash_file" "$TMP_DIR/raw-hash.hurl" >/dev/null || die "无法下载 pricing raw SHA256"
+  hurl -o "$json_file" "$TMP_DIR/raw-json.hurl" >/dev/null || die "无法下载 pricing raw JSON"
+  hurl -o "$hash_file" "$TMP_DIR/raw-hash.hurl" >/dev/null || die "无法下载 pricing raw SHA256"
 
   expected_hash="$(tr -d '[:space:]' <"$hash_file" | tr '[:upper:]' '[:lower:]')"
   [[ "$expected_hash" =~ ^[0-9a-fA-F]{64}$ ]] || die "pricing raw SHA256 格式非法"
@@ -172,7 +172,7 @@ verify_public_model() {
 GET $BASE_URL$PUBLIC_PRICING_PATH
 HTTP 200
 EOF
-  hurl --test -o "$response_file" "$TMP_DIR/public-pricing.hurl" >/dev/null || die "读取公开 pricing 快照失败"
+  hurl -o "$response_file" "$TMP_DIR/public-pricing.hurl" >/dev/null || die "读取公开 pricing 快照失败"
   jq -e --arg model "$MODEL" '.code == 0 and ([.. | objects | select(.name? == $model and (.tiers? | type == "array") and (.tiers | length > 0))] | length > 0)' "$response_file" >/dev/null || die "公开 pricing 快照未发现已加载模型：$MODEL"
 
   model_file="$TMP_DIR/public-model.json"
