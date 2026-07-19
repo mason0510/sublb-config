@@ -112,7 +112,7 @@ api_request() {
   case_file="$TMP_DIR/request-$REQUEST_SEQ.hurl"
   {
     printf '%s %s\n' "$method" "$BASE_URL$path"
-    printf 'Authorization: Bearer {{api_key}}\n'
+    printf 'x-api-key: {{api_key}}\n'
     if [[ "$method" != "GET" ]]; then
       printf 'Content-Type: application/json\n\n'
       cat "$body_file"
