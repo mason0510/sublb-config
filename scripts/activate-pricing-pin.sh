@@ -106,33 +106,23 @@ api_request() {
   local method="$1"
   local path="$2"
   local body_file="${3:-}"
-  local response_file curl_config
-  local http_code
+  local response_file case_file
   REQUEST_SEQ=$((REQUEST_SEQ + 1))
   response_file="$TMP_DIR/response-$REQUEST_SEQ.json"
-  curl_config="header = \"Authorization: Bearer $API_KEY\""
-  local -a curl_args=(
-    --config -
-    --request "$method"
-    --output "$response_file"
-    --write-out '%{http_code}'
-    --silent
-    --show-error
-    --connect-timeout 10
-    --max-time 45
-    --proto '=https'
-    --tlsv1.2
-    "$BASE_URL$path"
-  )
-
-  if [[ "$method" == "GET" ]]; then
-    curl_args+=(--retry 2 --retry-delay 1)
-  else
-    curl_args+=(--header 'Content-Type: application/json' --data-binary "@$body_file")
-  fi
-
-  http_code="$(curl "${curl_args[@]}" <<<"$curl_config")" || die "请求 $method $path 失败：$(response_error_summary "$response_file")"
-  [[ "$http_code" =~ ^2[0-9][0-9]$ ]] || die "请求 $method $path 返回 HTTP ${http_code}：$(response_error_summary "$response_file")"
+  case_file="$TMP_DIR/request-$REQUEST_SEQ.hurl"
+  {
+    printf '%s %s\n' "$method" "$BASE_URL$path"
+    printf 'Authorization: Bearer {{api_key}}\n'
+    if [[ "$method" != "GET" ]]; then
+      printf 'Content-Type: application/json\n\n'
+      cat "$body_file"
+      printf '\n'
+    else
+      printf '\n'
+    fi
+    printf 'HTTP *\n'
+  } >"$case_file"
+  hurl --test --secret "api_key=$API_KEY" -o "$response_file" "$case_file" >/dev/null || die "请求 $method $path 失败：$(response_error_summary "$response_file")"
   jq -e '.code == 0 and (.data | type == "object")' "$response_file" >/dev/null || die "请求 $method $path 返回业务失败：$(response_error_summary "$response_file")"
   printf '%s\n' "$response_file"
 }
@@ -142,10 +132,16 @@ fetch_raw_source() {
   local hash_file="$TMP_DIR/pricing.sha256"
   local expected_hash actual_hash model_file
 
-  curl --fail --silent --show-error --connect-timeout 10 --max-time 45 --proto '=https' --tlsv1.2 \
-    "$PRICING_RAW_BASE/$COMMIT_SHA/$PRICING_JSON_PATH" >"$json_file" || die "无法下载 pricing raw JSON"
-  curl --fail --silent --show-error --connect-timeout 10 --max-time 45 --proto '=https' --tlsv1.2 \
-    "$PRICING_RAW_BASE/$COMMIT_SHA/$PRICING_HASH_PATH" >"$hash_file" || die "无法下载 pricing raw SHA256"
+  cat >"$TMP_DIR/raw-json.hurl" <<EOF
+GET $PRICING_RAW_BASE/$COMMIT_SHA/$PRICING_JSON_PATH
+HTTP 200
+EOF
+  cat >"$TMP_DIR/raw-hash.hurl" <<EOF
+GET $PRICING_RAW_BASE/$COMMIT_SHA/$PRICING_HASH_PATH
+HTTP 200
+EOF
+  hurl --test -o "$json_file" "$TMP_DIR/raw-json.hurl" >/dev/null || die "无法下载 pricing raw JSON"
+  hurl --test -o "$hash_file" "$TMP_DIR/raw-hash.hurl" >/dev/null || die "无法下载 pricing raw SHA256"
 
   expected_hash="$(tr -d '[:space:]' <"$hash_file" | tr '[:upper:]' '[:lower:]')"
   [[ "$expected_hash" =~ ^[0-9a-fA-F]{64}$ ]] || die "pricing raw SHA256 格式非法"
@@ -171,12 +167,12 @@ verify_admin_response() {
 
 verify_public_model() {
   local response_file="$TMP_DIR/public-pricing.json"
-  local http_code model_file
-
-  if ! http_code="$(curl --output "$response_file" --write-out '%{http_code}' --silent --show-error --connect-timeout 10 --max-time 45 --proto '=https' --tlsv1.2 "$BASE_URL$PUBLIC_PRICING_PATH")"; then
-    die "读取公开 pricing 快照失败"
-  fi
-  [[ "$http_code" =~ ^2[0-9][0-9]$ ]] || die "公开 pricing 快照返回 HTTP $http_code"
+  local model_file
+  cat >"$TMP_DIR/public-pricing.hurl" <<EOF
+GET $BASE_URL$PUBLIC_PRICING_PATH
+HTTP 200
+EOF
+  hurl --test -o "$response_file" "$TMP_DIR/public-pricing.hurl" >/dev/null || die "读取公开 pricing 快照失败"
   jq -e --arg model "$MODEL" '.code == 0 and ([.. | objects | select(.name? == $model and (.tiers? | type == "array") and (.tiers | length > 0))] | length > 0)' "$response_file" >/dev/null || die "公开 pricing 快照未发现已加载模型：$MODEL"
 
   model_file="$TMP_DIR/public-model.json"
@@ -198,7 +194,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-require_command curl
+require_command hurl
 require_command jq
 require_command shasum
 [[ "$BASE_URL" =~ ^https://[^/?#]+$ ]] || die "--base-url 必须是无路径的 HTTPS 地址"
