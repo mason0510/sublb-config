@@ -688,6 +688,18 @@
     "supports_response_schema": true,
     "supports_tool_choice": true,
     "supports_vision": true,
+    "public_catalog": {
+      "category": "claude",
+      "description": "Anthropic Claude 旗舰推理模型，支持提示词缓存，适合超复杂分析、多轮规划和长链路高精度任务。",
+      "display_only": false,
+      "sort_order": 15,
+      "tags": [
+        "文本",
+        "高阶推理",
+        "缓存"
+      ],
+      "visible": true
+    },
     "tool_use_system_prompt_tokens": 346
   },
   "claude-sonnet-4-20250514": {
