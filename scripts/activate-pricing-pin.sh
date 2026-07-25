@@ -8,7 +8,7 @@ readonly PRICING_RAW_BASE="https://raw.githubusercontent.com/mason0510/sublb-con
 readonly PRICING_JSON_PATH="pricing/model_prices_and_context_window.json"
 readonly PRICING_HASH_PATH="pricing/model_prices_and_context_window.sha256"
 readonly ADMIN_PIN_PATH="/api/v1/admin/settings/pricing-config-commit"
-readonly PUBLIC_PRICING_PATH="/api/v1/status/models/pricing"
+readonly CLAUDE_ALLOWLIST_PATH="/api/v1/admin/settings/claude-pricing-allowlist"
 
 BASE_URL=""
 ENV_FILE="${HOME}/.codex/secrets/sub2api-admin-keys.env"
@@ -34,7 +34,7 @@ usage() {
   1. 校验指定 commit 的 GitHub raw JSON、SHA256 与目标模型；
   2. 从本机 ~/.codex/secrets/sub2api-admin-keys.env 读取站点对应 key，并做 GET 鉴权预检；
   3. PUT commit SHA（后端再次下载、校验 SHA256 并立即激活）；
-  4. GET 回读 active pin，并从公开 pricing 快照确认目标模型已加载；
+  4. GET 回读 active pin；若目标是 Claude 系列，自动合并到 Claude billing allowlist 并回读；
   5. 在 --evidence-dir 写入证据；远程 pricing 原文为公开数据，管理员响应只写脱敏摘要。
 
 --dry-run 只执行第 1、2 步，不会发送 PUT。
@@ -165,19 +165,41 @@ verify_admin_response() {
   ' "$response_file" >/dev/null || die "$phase 管理员回读与目标 pin 不一致"
 }
 
-verify_public_model() {
-  local response_file="$TMP_DIR/public-pricing.json"
-  local model_file
-  cat >"$TMP_DIR/public-pricing.hurl" <<EOF
-GET $BASE_URL$PUBLIC_PRICING_PATH
-HTTP 200
-EOF
-  hurl -o "$response_file" "$TMP_DIR/public-pricing.hurl" >/dev/null || die "读取公开 pricing 快照失败"
-  jq -e --arg model "$MODEL" '.code == 0 and ([.. | objects | select(.name? == $model and (.tiers? | type == "array") and (.tiers | length > 0))] | length > 0)' "$response_file" >/dev/null || die "公开 pricing 快照未发现已加载模型：$MODEL"
+is_claude_pricing_model() {
+  local normalized
+  normalized="$(printf '%s' "$MODEL" | tr '[:upper:]' '[:lower:]')"
+  [[ "$normalized" == claude-* || "$normalized" == *opus* || "$normalized" == *sonnet* || "$normalized" == *haiku* || "$normalized" == *fable* ]]
+}
 
-  model_file="$TMP_DIR/public-model.json"
-  jq -S --arg model "$MODEL" '{model: $model, entries: [.. | objects | select(.name? == $model and (.tiers? | type == "array")) | {name, description, depths, tiers}]}' "$response_file" >"$model_file"
-  save_evidence public-model-pricing.json "$model_file"
+sync_claude_pricing_allowlist() {
+  local preflight_response update_response readback_response payload_file
+
+  if ! is_claude_pricing_model; then
+    return 0
+  fi
+
+  preflight_response="$(api_request GET "$CLAUDE_ALLOWLIST_PATH")"
+  jq -e '.data.models | type == "array"' "$preflight_response" >/dev/null || die "Claude allowlist 预检返回缺少 models 数组"
+  jq -S --arg model "$MODEL" '{phase: "preflight", target_model: $model, models: .data.models}' "$preflight_response" >"$TMP_DIR/claude-allowlist-preflight.json"
+  save_evidence claude-allowlist-preflight.json "$TMP_DIR/claude-allowlist-preflight.json"
+
+  if jq -e --arg model "$MODEL" '.data.models | index($model) != null' "$preflight_response" >/dev/null; then
+    jq -S --arg model "$MODEL" '{phase: "unchanged", target_model: $model, models: .data.models}' "$preflight_response" >"$TMP_DIR/claude-allowlist-readback.json"
+    save_evidence claude-allowlist-readback.json "$TMP_DIR/claude-allowlist-readback.json"
+    return 0
+  fi
+
+  payload_file="$TMP_DIR/claude-allowlist-update.json"
+  jq -S --arg model "$MODEL" '{models: ((.data.models + [$model]) | unique | sort)}' "$preflight_response" >"$payload_file"
+  update_response="$(api_request PUT "$CLAUDE_ALLOWLIST_PATH" "$payload_file")"
+  jq -e --arg model "$MODEL" '.data.models | type == "array" and index($model) != null' "$update_response" >/dev/null || die "Claude allowlist 更新后未包含目标模型：$MODEL"
+  jq -S --arg model "$MODEL" '{phase: "update", target_model: $model, models: .data.models}' "$update_response" >"$TMP_DIR/claude-allowlist-update.json"
+  save_evidence claude-allowlist-update.json "$TMP_DIR/claude-allowlist-update.json"
+
+  readback_response="$(api_request GET "$CLAUDE_ALLOWLIST_PATH")"
+  jq -e --arg model "$MODEL" '.data.models | type == "array" and index($model) != null' "$readback_response" >/dev/null || die "Claude allowlist 回读未包含目标模型：$MODEL"
+  jq -S --arg model "$MODEL" '{phase: "readback", target_model: $model, models: .data.models}' "$readback_response" >"$TMP_DIR/claude-allowlist-readback.json"
+  save_evidence claude-allowlist-readback.json "$TMP_DIR/claude-allowlist-readback.json"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -259,6 +281,6 @@ readback_response="$(api_request GET "$ADMIN_PIN_PATH")"
 verify_admin_response "$readback_response" "PUT 后"
 jq -S '{phase: "readback", configured: (.data.configured // false), commit_sha: .data.commit_sha, pricing_status: .data.pricing_status}' "$readback_response" >"$TMP_DIR/readback.json"
 save_evidence readback.json "$TMP_DIR/readback.json"
-verify_public_model
+sync_claude_pricing_allowlist
 
 printf 'activated=true commit_sha=%s model=%s evidence_dir=%s\n' "$COMMIT_SHA" "$MODEL" "$EVIDENCE_DIR"
