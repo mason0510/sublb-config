@@ -215,9 +215,7 @@ $spec
 EOF
   output_file="$EVIDENCE_DIR/${phase}-${label}.json"
   remote_env="LABEL=$(shell_quote "$label") SERVICE=$(shell_quote "$service") FALLBACK_DIR=$(shell_quote "$fallback_dir") COMMIT_SHA=$(shell_quote "$commit") EXPECTED_HASH=$(shell_quote "$expected_hash") MODEL=$(shell_quote "$MODEL") EXPECTED_MODEL_B64=$(shell_quote "$expected_model_b64") ACTION=$(shell_quote "$action")"
-  {
-    printf '%s\n' "$API_KEY"
-    cat <<'REMOTE'
+  cat >"$TMP_DIR/node-runtime.sh" <<'REMOTE'
 set -euo pipefail
 
 die() { printf 'node_error=%s\n' "$*" >&2; exit 1; }
@@ -249,6 +247,8 @@ if [[ "$ACTION" == "activate" ]]; then
   work_dir="$backup_dir/.work"
   install -d -m 0700 "$work_dir"
   trap 'find "$work_dir" -type f -exec sh -c '\''for f do : >"$f"; done'\'' sh {} + 2>/dev/null || true' EXIT
+  printf 'api_key=%s\n' "$API_KEY" >"$work_dir/secrets.properties"
+  chmod 0600 "$work_dir/secrets.properties"
   cat >"$work_dir/update.hurl" <<EOF
 PUT http://127.0.0.1:48090/api/v1/admin/settings/pricing-config-commit
 x-api-key: {{api_key}}
@@ -257,7 +257,7 @@ Content-Type: application/json
 {"commit_sha":"$COMMIT_SHA"}
 HTTP 200
 EOF
-  hurl --secret "api_key=$API_KEY" -o "$work_dir/update.json" "$work_dir/update.hurl" >/dev/null || die "loopback PUT failed"
+  hurl --secrets-file "$work_dir/secrets.properties" -o "$work_dir/update.json" "$work_dir/update.hurl" >/dev/null || die "loopback PUT failed"
   jq -e --arg commit "$COMMIT_SHA" --arg hash "$EXPECTED_HASH" '
     .code == 0 and .data.commit_sha == $commit and .data.activated == true and
     .data.verified_sha256 == $hash and .data.pricing_status.config_commit_sha == $commit and
@@ -290,8 +290,11 @@ jq -n \
     before:{commit:$before_commit,sha256:$before_hash},
     after:{commit:$commit,sha256:$hash,pricing:$pricing},backup_dir:$backup_dir}'
 REMOTE
-  } | ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" "$remote_env bash -c 'IFS= read -r API_KEY; export API_KEY; sudo -E bash -s'" >"$output_file"
-  jq -S . "$output_file" >"$output_file.tmp"
+  if ! { printf '%s\n' "$API_KEY"; cat "$TMP_DIR/node-runtime.sh"; } |
+    ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" "$remote_env bash -c 'IFS= read -r API_KEY; export API_KEY; sudo -E bash -s'" >"$output_file"; then
+    return 1
+  fi
+  jq -eS . "$output_file" >"$output_file.tmp" || return 1
   mv "$output_file.tmp" "$output_file"
 }
 
