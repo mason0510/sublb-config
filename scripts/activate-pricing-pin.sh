@@ -247,17 +247,16 @@ if [[ "$ACTION" == "activate" ]]; then
   work_dir="$backup_dir/.work"
   install -d -m 0700 "$work_dir"
   trap 'find "$work_dir" -type f -exec sh -c '\''for f do : >"$f"; done'\'' sh {} + 2>/dev/null || true' EXIT
-  printf 'api_key=%s\n' "$API_KEY" >"$work_dir/secrets.properties"
-  chmod 0600 "$work_dir/secrets.properties"
   cat >"$work_dir/update.hurl" <<EOF
 PUT http://127.0.0.1:48090/api/v1/admin/settings/pricing-config-commit
-x-api-key: {{api_key}}
+x-api-key: $API_KEY
 Content-Type: application/json
 
 {"commit_sha":"$COMMIT_SHA"}
 HTTP 200
 EOF
-  hurl --secrets-file "$work_dir/secrets.properties" -o "$work_dir/update.json" "$work_dir/update.hurl" >/dev/null || die "loopback PUT failed"
+  chmod 0600 "$work_dir/update.hurl"
+  hurl -o "$work_dir/update.json" "$work_dir/update.hurl" >/dev/null || die "loopback PUT failed"
   jq -e --arg commit "$COMMIT_SHA" --arg hash "$EXPECTED_HASH" '
     .code == 0 and .data.commit_sha == $commit and .data.activated == true and
     .data.verified_sha256 == $hash and .data.pricing_status.config_commit_sha == $commit and
