@@ -6802,10 +6802,10 @@
     }
   },
   "gpt-5.6-terra": {
-    "cache_creation_input_token_cost": 3.125e-06,
-    "cache_read_input_token_cost": 2.5e-07,
-    "input_cost_per_token": 2.5e-06,
-    "output_cost_per_token": 1.5e-05,
+    "cache_creation_input_token_cost": 2.5e-06,
+    "cache_read_input_token_cost": 2e-07,
+    "input_cost_per_token": 2e-06,
+    "output_cost_per_token": 1.2e-05,
     "litellm_provider": "openai",
     "mode": "chat",
     "max_input_tokens": 200000,
@@ -6825,10 +6825,10 @@
     }
   },
   "gpt-5.6-luna": {
-    "cache_creation_input_token_cost": 1.25e-06,
-    "cache_read_input_token_cost": 1e-07,
-    "input_cost_per_token": 1e-06,
-    "output_cost_per_token": 6e-06,
+    "cache_creation_input_token_cost": 2.5e-07,
+    "cache_read_input_token_cost": 2e-08,
+    "input_cost_per_token": 2e-07,
+    "output_cost_per_token": 1.2e-06,
     "litellm_provider": "openai",
     "mode": "chat",
     "max_input_tokens": 200000,
