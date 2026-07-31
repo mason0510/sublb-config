@@ -26,6 +26,9 @@
    - 目标模型条目存在，且输入、缓存输入、输出价格及所有上下文分档字段与预期一致；
    - raw 文件下载成功，目录 raw URL 不是 200；
    - `origin/master` 已指向该固定 commit，工作区干净。
+   - 使用 `scripts/activate-pricing-pin.sh` 完成三个生产实例的集群激活；
+   - 三节点运行时 `model_pricing.json/.sha256/.commit`、目标模型四类价格一致；
+   - 激活后的真实 usage 记录按新价格计费。
 
 禁止仅凭本地 JSON、GitHub 页面可打开或 HTTP 200 宣布发布完成；未通过固定 commit raw readback，不得认为 pricing 已发布。
 
@@ -36,3 +39,14 @@
 目标机制是将 pin 设为受控可配置项：后台或自动化入口只接受 `sublb-config` 的 40 位小写 commit SHA，后端据此固定拼接 JSON 与 SHA256 raw 地址、校验 hash 后应用新价格。价格源发布流程应自动把新 commit SHA 写入该 pin，并立即 readback 目标模型价格。
 
 禁止把 pin 改为 `master`、branch、tag、任意 URL，或绕过 JSON/SHA256 校验。
+
+## 生产运行缓存与集群激活
+
+- `model_pricing.json` 是实例本地运行缓存，不是独立价格真值；唯一真值仍是本仓库固定 commit。
+- 价格 pin 写入共享 settings 后，单个实例只会立即更新自己的进程内价格和运行缓存；因此
+  生产激活必须使用 `scripts/activate-pricing-pin.sh` 逐实例 loopback PUT，不得只调用一次公网 PUT。
+- 脚本必须从运行进程的 `PRICING_DATA_DIR` / `DATA_DIR` 确认真实路径，并逐节点回读
+  `model_pricing.json`、`.sha256`、`.commit` 与目标模型四类价格。
+- 三节点写同一个共享 pin，存在同一资源写冲突，固定串行；任一节点失败即按旧 commit 回滚。
+- 退出码 0、单次 `activated=true`、active pin 正确均不单独代表价格已生产生效；必须有三节点
+  一致性和激活后真实 usage 计费证据。

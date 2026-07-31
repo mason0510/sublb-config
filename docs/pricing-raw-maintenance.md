@@ -34,3 +34,13 @@ https://raw.githubusercontent.com/mason0510/sublb-config/<commit>/pricing/
 
 如果需要修改主流程，请改 README；  
 如果只是补充脚本校验边界，再改本页。
+
+## `model_pricing.json` 边界
+
+生产节点上的 `model_pricing.json` 是 PricingService 的本地运行缓存。它与进程内
+`pricingData`、`model_pricing.sha256`、`model_pricing.commit` 必须作为一个整体更新。
+只复制 JSON 不会更新进程内价格，因此不构成生产激活。
+
+`scripts/activate-pricing-pin.sh` 通过每个实例的 loopback 管理接口触发后端自身的
+下载、校验、文件落盘和内存替换，然后逐节点回读。节点定时同步仅是故障兜底，不属于
+正常价格发布路径，也不允许在默认 10 分钟窗口内承受新旧价格混合计费。
