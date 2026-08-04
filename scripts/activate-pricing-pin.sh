@@ -163,19 +163,18 @@ EOF
   [[ "$expected_hash" =~ ^[0-9a-fA-F]{64}$ ]] || die "pricing raw SHA256 格式非法"
   actual_hash="$(shasum -a 256 "$json_file" | awk '{print $1}')"
   [[ "$expected_hash" == "$actual_hash" ]] || die "pricing raw SHA256 不一致"
-  jq -e --arg model "$MODEL" '.[$model] | objects | select(has("input_cost_per_token") and has("output_cost_per_token"))' "$json_file" >/dev/null || die "pricing raw JSON 中不存在可计费模型：$MODEL"
+  jq -e --arg model "$MODEL" '.[$model] | objects | select(
+    (has("input_cost_per_token") and has("output_cost_per_token")) or
+    has("output_cost_per_image") or
+    has("output_cost_per_video_per_second")
+  )' "$json_file" >/dev/null || die "pricing raw JSON 中不存在可计费模型：$MODEL"
 
   model_file="$TMP_DIR/raw-model.json"
   jq -S --arg model "$MODEL" --arg commit "$COMMIT_SHA" --arg sha "$actual_hash" \
     '{commit_sha: $commit, sha256: $sha, model: $model, pricing: .[$model]}' "$json_file" >"$model_file"
   save_evidence raw-source.json "$model_file"
   EXPECTED_HASH="$actual_hash"
-  EXPECTED_MODEL_B64="$(jq -c --arg model "$MODEL" '.[$model] | {
-    input_cost_per_token,
-    output_cost_per_token,
-    cache_creation_input_token_cost,
-    cache_read_input_token_cost
-  }' "$json_file" | base64 | tr -d '\n')"
+  EXPECTED_MODEL_B64="$(jq -c --arg model "$MODEL" '.[$model]' "$json_file" | base64 | tr -d '\n')"
 }
 
 fetch_rollback_source() {
@@ -195,12 +194,7 @@ EOF
   OLD_HASH="$(tr -d '[:space:]' <"$hash_file" | tr '[:upper:]' '[:lower:]')"
   [[ "$OLD_HASH" =~ ^[0-9a-f]{64}$ ]]
   [[ "$OLD_HASH" == "$(shasum -a 256 "$json_file" | awk '{print $1}')" ]]
-  OLD_MODEL_B64="$(jq -c --arg model "$MODEL" '.[$model] | {
-    input_cost_per_token,
-    output_cost_per_token,
-    cache_creation_input_token_cost,
-    cache_read_input_token_cost
-  }' "$json_file" | base64 | tr -d '\n')"
+  OLD_MODEL_B64="$(jq -c --arg model "$MODEL" '.[$model]' "$json_file" | base64 | tr -d '\n')"
 }
 
 shell_quote() {
@@ -266,12 +260,7 @@ fi
 
 actual_commit="$(tr -d '[:space:]' <"$pricing_dir/model_pricing.commit" 2>/dev/null || true)"
 actual_hash="$(sha256sum "$pricing_dir/model_pricing.json" 2>/dev/null | awk '{print $1}' || true)"
-actual_model="$(jq -c --arg model "$MODEL" '.[$model] | {
-  input_cost_per_token,
-  output_cost_per_token,
-  cache_creation_input_token_cost,
-  cache_read_input_token_cost
-}' "$pricing_dir/model_pricing.json" 2>/dev/null || true)"
+actual_model="$(jq -c --arg model "$MODEL" '.[$model]' "$pricing_dir/model_pricing.json" 2>/dev/null || true)"
 expected_model="$(printf '%s' "$EXPECTED_MODEL_B64" | base64 -d)"
 
 if [[ "$ACTION" == "activate" ]]; then
