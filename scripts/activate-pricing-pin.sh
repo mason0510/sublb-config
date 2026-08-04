@@ -18,6 +18,7 @@ MODEL="grok-4.5"
 EVIDENCE_DIR=""
 DRY_RUN=false
 SINGLE_INSTANCE=false
+TARGET_NODE=""
 TMP_DIR=""
 REQUEST_SEQ=0
 EXPECTED_HASH=""
@@ -43,6 +44,7 @@ usage() {
     [--env-file ~/.codex/secrets/sub2api-admin-keys.env] \
     [--key-var SUB2API_ADMIN_KEY_SUB_LB] [--model grok-4.5] [--dry-run]
     [--single-instance]
+    [--node <node-label>]
 
 流程：
   1. 校验指定 commit 的 GitHub raw JSON、SHA256 与目标模型；
@@ -54,6 +56,7 @@ usage() {
 
 --dry-run 会完成 raw、鉴权与三节点只读 preflight，不会发送 PUT。
 --single-instance 仅供非集群维护；对默认生产站点使用时不会形成集群生效证明。
+--node 与 --single-instance 一起使用时，仅通过该节点 SSH + loopback 激活；当前节点标签：node80、node254、node74。
 默认仅适用于 https://sub-lb.tap365.org；其他站点必须显式传 --key-var，禁止跨站复用 key。
 EOF
 }
@@ -356,6 +359,7 @@ while [[ $# -gt 0 ]]; do
     --evidence-dir) EVIDENCE_DIR="${2:-}"; shift 2 ;;
     --dry-run) DRY_RUN=true; shift ;;
     --single-instance) SINGLE_INSTANCE=true; shift ;;
+    --node) TARGET_NODE="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) die "未知参数：$1" ;;
   esac
@@ -376,6 +380,12 @@ fi
 [[ "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]] || die "--commit 必须是 40 位小写十六进制 commit SHA"
 [[ -n "$MODEL" ]] || die "--model 不能为空"
 [[ -n "$EVIDENCE_DIR" ]] || die "--evidence-dir 不能为空"
+if [[ -n "$TARGET_NODE" && "$TARGET_NODE" != "node80" && "$TARGET_NODE" != "node254" && "$TARGET_NODE" != "node74" ]]; then
+  die "--node 仅支持 node80、node254、node74"
+fi
+if [[ -n "$TARGET_NODE" && "$SINGLE_INSTANCE" == false ]]; then
+  die "--node 必须与 --single-instance 一起使用"
+fi
 [[ -f "$ENV_FILE" ]] || die "--env-file 不存在或不是普通文件"
 [[ "$(file_mode "$ENV_FILE")" == "600" ]] || die "--env-file 权限必须为 0600"
 if git -C "$(dirname "$0")/.." ls-files --error-unmatch -- "$ENV_FILE" >/dev/null 2>&1; then
@@ -386,6 +396,14 @@ if [[ "$ENV_FILE" == ./* || "$ENV_FILE" == .env ]]; then
 fi
 
 API_KEY="$(load_env_value "$ENV_FILE" "$KEY_VAR")"
+
+if [[ "$SINGLE_INSTANCE" == true && -n "$TARGET_NODE" ]]; then
+  case "$TARGET_NODE" in
+    node80) CLUSTER_NODES=("node80|mason-main|sub2api-80.service|/srv/sub2api-80/shared/data/pricing") ;;
+    node254) CLUSTER_NODES=("node254|ny-admin|sub2api-254.service|/srv/sub2api-254/shared/data/pricing") ;;
+    node74) CLUSTER_NODES=("node74|74|sublb.service|/srv/sublb/shared/data/pricing") ;;
+  esac
+fi
 
 if [[ -e "$EVIDENCE_DIR" ]]; then
   [[ -d "$EVIDENCE_DIR" ]] || die "--evidence-dir 已存在但不是目录"
@@ -401,10 +419,16 @@ chmod 700 "$TMP_DIR"
 umask 077
 
 fetch_raw_source
-preflight_response="$(api_request GET "$ADMIN_PIN_PATH")"
-jq -S '{phase: "preflight", configured: (.data.configured // false), commit_sha: (.data.commit_sha // ""), pricing_status: (.data.pricing_status // {})}' "$preflight_response" >"$TMP_DIR/preflight.json"
-save_evidence preflight.json "$TMP_DIR/preflight.json"
-OLD_COMMIT_SHA="$(jq -r '.data.commit_sha // empty' "$preflight_response")"
+if [[ "$SINGLE_INSTANCE" == true && -n "$TARGET_NODE" ]]; then
+  run_cluster_action preflight "$COMMIT_SHA" "$EXPECTED_HASH" "$EXPECTED_MODEL_B64" preflight-node || die "目标节点 preflight 失败"
+  preflight_response="$EVIDENCE_DIR/preflight-node-${TARGET_NODE}.json"
+  OLD_COMMIT_SHA="$(jq -r '.before.commit // empty' "$preflight_response")"
+else
+  preflight_response="$(api_request GET "$ADMIN_PIN_PATH")"
+  jq -S '{phase: "preflight", configured: (.data.configured // false), commit_sha: (.data.commit_sha // ""), pricing_status: (.data.pricing_status // {})}' "$preflight_response" >"$TMP_DIR/preflight.json"
+  save_evidence preflight.json "$TMP_DIR/preflight.json"
+  OLD_COMMIT_SHA="$(jq -r '.data.commit_sha // empty' "$preflight_response")"
+fi
 
 if [[ "$DRY_RUN" == true ]]; then
   if [[ "$SINGLE_INSTANCE" == false ]]; then
@@ -420,6 +444,9 @@ if [[ "$SINGLE_INSTANCE" == false ]]; then
     die "集群激活失败，已回滚到 $OLD_COMMIT_SHA"
   fi
   update_response="$EVIDENCE_DIR/activate-node-node80.json"
+elif [[ -n "$TARGET_NODE" ]]; then
+  run_cluster_action activate "$COMMIT_SHA" "$EXPECTED_HASH" "$EXPECTED_MODEL_B64" activate-node || die "目标节点激活失败"
+  update_response="$EVIDENCE_DIR/activate-node-${TARGET_NODE}.json"
 else
   jq -n --arg commit "$COMMIT_SHA" '{commit_sha: $commit}' >"$TMP_DIR/update.json"
   update_response="$(api_request PUT "$ADMIN_PIN_PATH" "$TMP_DIR/update.json")"
@@ -434,10 +461,15 @@ jq -e --arg commit "$COMMIT_SHA" '
 jq -S --arg phase "update" '{phase:$phase} + .' "$update_response" >"$TMP_DIR/update-result.json"
 save_evidence update-result.json "$TMP_DIR/update-result.json"
 
-readback_response="$(api_request GET "$ADMIN_PIN_PATH")"
-verify_admin_response "$readback_response" "PUT 后"
-jq -S '{phase: "readback", configured: (.data.configured // false), commit_sha: .data.commit_sha, pricing_status: .data.pricing_status}' "$readback_response" >"$TMP_DIR/readback.json"
-save_evidence readback.json "$TMP_DIR/readback.json"
+if [[ "$SINGLE_INSTANCE" == true && -n "$TARGET_NODE" ]]; then
+  jq -S --arg phase "readback" '{phase:$phase, node:.node, service:.service, pricing_dir:.pricing_dir, commit_sha:.after.commit, sha256:.after.sha256, pricing:.after.pricing}' "$update_response" >"$TMP_DIR/readback.json"
+  save_evidence readback.json "$TMP_DIR/readback.json"
+else
+  readback_response="$(api_request GET "$ADMIN_PIN_PATH")"
+  verify_admin_response "$readback_response" "PUT 后"
+  jq -S '{phase: "readback", configured: (.data.configured // false), commit_sha: .data.commit_sha, pricing_status: .data.pricing_status}' "$readback_response" >"$TMP_DIR/readback.json"
+  save_evidence readback.json "$TMP_DIR/readback.json"
+fi
 sync_claude_pricing_allowlist
 
 printf 'activated=true commit_sha=%s model=%s evidence_dir=%s\n' "$COMMIT_SHA" "$MODEL" "$EVIDENCE_DIR"
