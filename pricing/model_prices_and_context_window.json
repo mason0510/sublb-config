@@ -6615,6 +6615,29 @@
       "sort_order": 20
     }
   },
+  "grok-4.6": {
+    "cache_read_input_token_cost": 5e-07,
+    "cache_read_input_token_cost_above_200k_tokens": 1e-06,
+    "input_cost_per_token": 2e-06,
+    "input_cost_per_token_above_200k_tokens": 4e-06,
+    "output_cost_per_token": 6e-06,
+    "output_cost_per_token_above_200k_tokens": 1.2e-05,
+    "litellm_provider": "xai",
+    "mode": "chat",
+    "max_input_tokens": 500000,
+    "max_output_tokens": 16384,
+    "source": "https://docs.x.ai/developers/pricing",
+    "supports_prompt_caching": true,
+    "supports_vision": true,
+    "public_catalog": {
+      "visible": true,
+      "display_only": false,
+      "category": "grok_text",
+      "description": "高阶文本与推理模型；适合复杂分析、代码审查、多步骤任务。",
+      "tags": ["文本", "高阶推理", "代码审查"],
+      "sort_order": 30
+    }
+  },
   "grok-imagine-image": {
     "litellm_provider": "xai",
     "mode": "image_generation",
