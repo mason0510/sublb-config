@@ -108,7 +108,7 @@ loopback 管理接口，使每个实例立即完成以下动作：
 
 | 节点 | 服务 | 运行时价格目录 |
 |---|---|---|
-| `82.29.54.80` | `sub2api-80.service` | `/srv/sub2api-80/shared/data/pricing` |
+| `ovh-51-79-158-64-via-cn-tencent` | `sublb.service` | `/srv/sub2api/data/pricing` |
 | `82.29.54.254` | `sub2api-254.service` | `/srv/sub2api-254/shared/data/pricing` |
 | `74.48.114.71` | `sublb.service` | `/srv/sublb/shared/data/pricing` |
 
