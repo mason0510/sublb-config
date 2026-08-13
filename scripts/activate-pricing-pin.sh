@@ -29,7 +29,7 @@ OLD_MODEL_B64=""
 
 # 默认生产拓扑。价格更新必须逐实例触发内存安装，不能只写共享 pin 后等待定时器。
 CLUSTER_NODES=(
-  "node80|mason-main|sub2api-80.service|/srv/sub2api-80/shared/data/pricing"
+  "node64|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sub2api/data/pricing"
   "node254|ny-admin|sub2api-254.service|/srv/sub2api-254/shared/data/pricing"
   "node74|74|sublb.service|/srv/sublb/shared/data/pricing"
 )
@@ -56,7 +56,7 @@ usage() {
 
 --dry-run 会完成 raw、鉴权与三节点只读 preflight，不会发送 PUT。
 --single-instance 仅供非集群维护；对默认生产站点使用时不会形成集群生效证明。
---node 与 --single-instance 一起使用时，仅通过该节点 SSH + loopback 激活；当前节点标签：node80、node254、node74。
+--node 与 --single-instance 一起使用时，仅通过该节点 SSH + loopback 激活；当前节点标签：node64、node254、node74。
 默认仅适用于 https://sub-lb.tap365.org；其他站点必须显式传 --key-var，禁止跨站复用 key。
 EOF
 }
@@ -228,7 +228,7 @@ if [[ -z "$pricing_dir" ]]; then
   if [[ -n "$data_dir" ]]; then pricing_dir="${data_dir%/}/pricing"; fi
 fi
 if [[ -z "$pricing_dir" ]]; then pricing_dir="$FALLBACK_DIR"; fi
-[[ "$pricing_dir" == /srv/*/shared/data/pricing ]] || die "unexpected pricing dir: $pricing_dir"
+[[ "$pricing_dir" == "$FALLBACK_DIR" ]] || die "unexpected pricing dir: $pricing_dir (expected: $FALLBACK_DIR)"
 [[ -d "$pricing_dir" ]] || die "pricing dir missing: $pricing_dir"
 
 before_commit="$(tr -d '[:space:]' <"$pricing_dir/model_pricing.commit" 2>/dev/null || true)"
@@ -380,8 +380,8 @@ fi
 [[ "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]] || die "--commit 必须是 40 位小写十六进制 commit SHA"
 [[ -n "$MODEL" ]] || die "--model 不能为空"
 [[ -n "$EVIDENCE_DIR" ]] || die "--evidence-dir 不能为空"
-if [[ -n "$TARGET_NODE" && "$TARGET_NODE" != "node80" && "$TARGET_NODE" != "node254" && "$TARGET_NODE" != "node74" ]]; then
-  die "--node 仅支持 node80、node254、node74"
+if [[ -n "$TARGET_NODE" && "$TARGET_NODE" != "node64" && "$TARGET_NODE" != "node254" && "$TARGET_NODE" != "node74" ]]; then
+  die "--node 仅支持 node64、node254、node74"
 fi
 if [[ -n "$TARGET_NODE" && "$SINGLE_INSTANCE" == false ]]; then
   die "--node 必须与 --single-instance 一起使用"
@@ -399,7 +399,7 @@ API_KEY="$(load_env_value "$ENV_FILE" "$KEY_VAR")"
 
 if [[ "$SINGLE_INSTANCE" == true && -n "$TARGET_NODE" ]]; then
   case "$TARGET_NODE" in
-    node80) CLUSTER_NODES=("node80|mason-main|sub2api-80.service|/srv/sub2api-80/shared/data/pricing") ;;
+    node64) CLUSTER_NODES=("node64|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sub2api/data/pricing") ;;
     node254) CLUSTER_NODES=("node254|ny-admin|sub2api-254.service|/srv/sub2api-254/shared/data/pricing") ;;
     node74) CLUSTER_NODES=("node74|74|sublb.service|/srv/sublb/shared/data/pricing") ;;
   esac
@@ -443,7 +443,7 @@ if [[ "$SINGLE_INSTANCE" == false ]]; then
     rollback_cluster || die "集群激活失败，且自动回滚未完整通过；立即检查 evidence"
     die "集群激活失败，已回滚到 $OLD_COMMIT_SHA"
   fi
-  update_response="$EVIDENCE_DIR/activate-node-node80.json"
+  update_response="$EVIDENCE_DIR/activate-node-node64.json"
 elif [[ -n "$TARGET_NODE" ]]; then
   run_cluster_action activate "$COMMIT_SHA" "$EXPECTED_HASH" "$EXPECTED_MODEL_B64" activate-node || die "目标节点激活失败"
   update_response="$EVIDENCE_DIR/activate-node-${TARGET_NODE}.json"
