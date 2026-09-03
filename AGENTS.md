@@ -50,3 +50,10 @@
 - 三节点写同一个共享 pin，存在同一资源写冲突，固定串行；任一节点失败即按旧 commit 回滚。
 - 退出码 0、单次 `activated=true`、active pin 正确均不单独代表价格已生产生效；必须有三节点
   一致性和激活后真实 usage 计费证据。
+
+## ChainFuel 生产节点登记（2026-09-03）
+
+- `prod-main`：生产主入口，历史运行地址 `51.79.158.64`；当前主服务器管理 SSH：`us-main-01-admin-direct`（`82.29.54.80`），服务端口 `48090`，运行价格目录 `/srv/sub2api-80/shared/data/pricing`。
+- `prod-third`：`51.79.158.64`，新加坡生产节点（兼预发布/测试）；SSH 别名 `ovh-51-79-158-64-via-cn-tencent`，服务 `sublb.service`，运行价格目录 `/srv/sublb/prod-main/data/pricing`。
+- `prod-forth`：`192.99.71.43`，独立负载节点；当前未登记可用 SSH 别名，直接 TCP/22 连接需先恢复后再执行生产写入。
+- 定价发布必须按节点逐一执行 pin 激活与运行时 readback；不得以单节点结果代表三个实例全部生效。
