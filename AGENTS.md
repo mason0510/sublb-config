@@ -57,3 +57,7 @@
 - `prod-third`：`51.79.158.64`，新加坡生产节点（兼预发布/测试）；SSH 别名 `ovh-51-79-158-64-via-cn-tencent`，服务 `sublb.service`，运行价格目录 `/srv/sublb/prod-main/data/pricing`。
 - `prod-forth`：`192.99.71.43`，独立负载节点；SSH 别名：`ovh-ca-192`（用户 `ubuntu`，端口 `49222`）；运行服务 `sub2api-prod-forth.service`，价格目录 `/srv/sub2api/data/pricing`。
 - 定价发布必须按节点逐一执行 pin 激活与运行时 readback；不得以单节点结果代表三个实例全部生效。
+
+### SSH 角色更正（2026-09-03）
+
+- `au-digitalocean-01-admin-direct` 标记为**备用服务器**，不是 `pre-prod`；不得将其计入预发节点或生产负载节点。
