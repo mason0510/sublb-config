@@ -60,4 +60,6 @@
 
 ### SSH 角色更正（2026-09-03）
 
-- `au-digitalocean-01-admin-direct` 标记为**备用服务器**，不是 `pre-prod`；不得将其计入预发节点或生产负载节点。
+- `159.203.172.233`（SSH 别名 `do159-admin`）不是预发节点。
+- 预发节点是 `170.64.187.227:49222`，SSH 别名 `au-digitalocean-01-admin-direct`（用户 `root`）。
+- `au-digitalocean-01-admin-direct` 仅用于预发，不计入生产负载节点。
