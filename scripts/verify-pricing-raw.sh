@@ -73,6 +73,7 @@ required = {
     'claude-opus-5': (5e-06, 5e-07, 6.25e-06, 1e-05, 2.5e-05),
     'claude-sonnet-5': (2e-06, 2e-07, 2.5e-06, 4e-06, 1e-05),
     'claude-fable-5': (1e-05, 1e-06, 1.25e-05, 2e-05, 5e-05),
+    'claude-fable-5-1': (1e-05, 1e-06, 1.25e-05, 2e-05, 5e-05),
 }
 keys = [
     'input_cost_per_token',
