@@ -29,7 +29,7 @@ OLD_MODEL_B64=""
 
 # 默认生产拓扑。价格更新必须逐实例触发内存安装，不能只写共享 pin 后等待定时器。
 CLUSTER_NODES=(
-  "node64|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sub2api/data/pricing"
+  "node64|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sublb/prod-main/data/pricing"
   "node254|ny-admin|sub2api-254.service|/srv/sub2api-254/shared/data/pricing"
   "node74|74|sublb.service|/srv/sublb/shared/data/pricing"
 )
@@ -399,7 +399,7 @@ API_KEY="$(load_env_value "$ENV_FILE" "$KEY_VAR")"
 
 if [[ "$SINGLE_INSTANCE" == true && -n "$TARGET_NODE" ]]; then
   case "$TARGET_NODE" in
-    node64) CLUSTER_NODES=("node64|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sub2api/data/pricing") ;;
+    node64) CLUSTER_NODES=("node64|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sublb/prod-main/data/pricing") ;;
     node254) CLUSTER_NODES=("node254|ny-admin|sub2api-254.service|/srv/sub2api-254/shared/data/pricing") ;;
     node74) CLUSTER_NODES=("node74|74|sublb.service|/srv/sublb/shared/data/pricing") ;;
   esac
