@@ -30,7 +30,7 @@ OLD_MODEL_B64=""
 # 默认生产拓扑。价格更新必须逐实例触发内存安装，不能只写共享 pin 后等待定时器。
 CLUSTER_NODES=(
   "prod-main|us-main-01-admin-direct|sub2api-80.service|/srv/sub2api-80/shared/data/pricing"
-  "prod-third|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sublb/prod-main/data/pricing"
+  "prod-third|ovh-singapore-254|sublb.service|/srv/sublb/prod-main/data/pricing"
   "prod-forth|ovh-ca-192|sub2api-prod-forth.service|/srv/sub2api/data/pricing"
 )
 
@@ -400,7 +400,7 @@ API_KEY="$(load_env_value "$ENV_FILE" "$KEY_VAR")"
 if [[ "$SINGLE_INSTANCE" == true && -n "$TARGET_NODE" ]]; then
   case "$TARGET_NODE" in
     prod-main) CLUSTER_NODES=("prod-main|us-main-01-admin-direct|sub2api-80.service|/srv/sub2api-80/shared/data/pricing") ;;
-    prod-third) CLUSTER_NODES=("prod-third|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sublb/prod-main/data/pricing") ;;
+    prod-third) CLUSTER_NODES=("prod-third|ovh-singapore-254|sublb.service|/srv/sublb/prod-main/data/pricing") ;;
     prod-forth) CLUSTER_NODES=("prod-forth|ovh-ca-192|sub2api-prod-forth.service|/srv/sub2api/data/pricing") ;;
     *) die "--node 未知标签：$TARGET_NODE（可用：prod-main、prod-third、prod-forth）" ;;
   esac
