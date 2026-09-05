@@ -7017,5 +7017,32 @@
       "fixed_label": "按 token",
       "fixed_price": "输入/输出/缓存读取均为 $1/1M tokens"
     }
+  },
+  "gpt-5.6-astra": {
+    "cache_creation_input_token_cost": 1.25e-05,
+    "cache_read_input_token_cost": 1e-06,
+    "input_cost_per_token": 1e-05,
+    "output_cost_per_token": 5e-05,
+    "litellm_provider": "openai",
+    "mode": "chat",
+    "max_input_tokens": 200000,
+    "max_output_tokens": 16384,
+    "supports_function_calling": true,
+    "supports_parallel_function_calling": true,
+    "supports_prompt_caching": true,
+    "supports_response_schema": true,
+    "supports_system_messages": true,
+    "supports_tool_choice": true,
+    "public_catalog": {
+      "visible": true,
+      "category": "standard",
+      "description": "Astra API 旗舰模型，适合高性能推理与复杂任务。",
+      "tags": [
+        "旗舰",
+        "深度推理",
+        "缓存"
+      ],
+      "sort_order": 5
+    }
   }
 }

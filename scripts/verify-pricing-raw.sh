@@ -96,6 +96,7 @@ required_gpt56 = {
     'gpt-5.6-sol': (5e-06, 3e-05, 6.25e-06, 5e-07),
     'gpt-5.6-terra': (2e-06, 1.2e-05, 2.5e-06, 2e-07),
     'gpt-5.6-luna': (2e-07, 1.2e-06, 2.5e-07, 2e-08),
+    'gpt-5.6-astra': (1e-05, 5e-05, 1.25e-05, 1e-06),
 }
 gpt56_keys = [
     'input_cost_per_token',
