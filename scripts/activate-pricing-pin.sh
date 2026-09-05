@@ -29,9 +29,9 @@ OLD_MODEL_B64=""
 
 # 默认生产拓扑。价格更新必须逐实例触发内存安装，不能只写共享 pin 后等待定时器。
 CLUSTER_NODES=(
-  "node64|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sublb/prod-main/data/pricing"
-  "node254|ny-admin|sub2api-254.service|/srv/sub2api-254/shared/data/pricing"
-  "node74|74|sublb.service|/srv/sublb/shared/data/pricing"
+  "prod-main|us-main-01-admin-direct|sub2api-80.service|/srv/sub2api-80/shared/data/pricing"
+  "prod-third|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sublb/prod-main/data/pricing"
+  "prod-forth|ovh-ca-192|sub2api-prod-forth.service|/srv/sub2api/data/pricing"
 )
 
 usage() {
@@ -56,7 +56,7 @@ usage() {
 
 --dry-run 会完成 raw、鉴权与三节点只读 preflight，不会发送 PUT。
 --single-instance 仅供非集群维护；对默认生产站点使用时不会形成集群生效证明。
---node 与 --single-instance 一起使用时，仅通过该节点 SSH + loopback 激活；当前节点标签：node64、node254、node74。
+--node 与 --single-instance 一起使用时，仅通过该节点 SSH + loopback 激活；当前节点标签：prod-main、prod-third、prod-forth。
 默认仅适用于 https://sub-lb.tap365.org；其他站点必须显式传 --key-var，禁止跨站复用 key。
 EOF
 }
@@ -399,9 +399,10 @@ API_KEY="$(load_env_value "$ENV_FILE" "$KEY_VAR")"
 
 if [[ "$SINGLE_INSTANCE" == true && -n "$TARGET_NODE" ]]; then
   case "$TARGET_NODE" in
-    node64) CLUSTER_NODES=("node64|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sublb/prod-main/data/pricing") ;;
-    node254) CLUSTER_NODES=("node254|ny-admin|sub2api-254.service|/srv/sub2api-254/shared/data/pricing") ;;
-    node74) CLUSTER_NODES=("node74|74|sublb.service|/srv/sublb/shared/data/pricing") ;;
+    prod-main) CLUSTER_NODES=("prod-main|us-main-01-admin-direct|sub2api-80.service|/srv/sub2api-80/shared/data/pricing") ;;
+    prod-third) CLUSTER_NODES=("prod-third|ovh-51-79-158-64-via-cn-tencent|sublb.service|/srv/sublb/prod-main/data/pricing") ;;
+    prod-forth) CLUSTER_NODES=("prod-forth|ovh-ca-192|sub2api-prod-forth.service|/srv/sub2api/data/pricing") ;;
+    *) die "--node 未知标签：$TARGET_NODE（可用：prod-main、prod-third、prod-forth）" ;;
   esac
 fi
 
