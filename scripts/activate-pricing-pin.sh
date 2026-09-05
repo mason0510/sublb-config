@@ -380,8 +380,8 @@ fi
 [[ "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]] || die "--commit 必须是 40 位小写十六进制 commit SHA"
 [[ -n "$MODEL" ]] || die "--model 不能为空"
 [[ -n "$EVIDENCE_DIR" ]] || die "--evidence-dir 不能为空"
-if [[ -n "$TARGET_NODE" && "$TARGET_NODE" != "node64" && "$TARGET_NODE" != "node254" && "$TARGET_NODE" != "node74" ]]; then
-  die "--node 仅支持 node64、node254、node74"
+if [[ -n "$TARGET_NODE" && "$TARGET_NODE" != "prod-main" && "$TARGET_NODE" != "prod-third" && "$TARGET_NODE" != "prod-forth" ]]; then
+  die "--node 仅支持 prod-main、prod-third、prod-forth"
 fi
 if [[ -n "$TARGET_NODE" && "$SINGLE_INSTANCE" == false ]]; then
   die "--node 必须与 --single-instance 一起使用"
@@ -444,7 +444,7 @@ if [[ "$SINGLE_INSTANCE" == false ]]; then
     rollback_cluster || die "集群激活失败，且自动回滚未完整通过；立即检查 evidence"
     die "集群激活失败，已回滚到 $OLD_COMMIT_SHA"
   fi
-  update_response="$EVIDENCE_DIR/activate-node-node64.json"
+  update_response="$EVIDENCE_DIR/activate-node-prod-main.json"
 elif [[ -n "$TARGET_NODE" ]]; then
   run_cluster_action activate "$COMMIT_SHA" "$EXPECTED_HASH" "$EXPECTED_MODEL_B64" activate-node || die "目标节点激活失败"
   update_response="$EVIDENCE_DIR/activate-node-${TARGET_NODE}.json"
