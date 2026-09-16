@@ -2,8 +2,9 @@
 
 SubLB 自维护公开配置源。
 
-这个仓库现在是 **SubLB pricing 真值源唯一主入口**。  
-以后遇到模型价格、缓存价格、raw URL、固定 commit pin、hash 校验这类问题，默认先看这里，不再去上游仓库盲找。
+这个仓库现在是 **SubLB pricing 真值源唯一主入口**，也是 **`/v1/models` 公开名单（publish）的独立配置源**。  
+以后遇到模型价格、缓存价格、raw URL、固定 commit pin、hash 校验这类问题，默认先看这里，不再去上游仓库盲找。  
+公开名单不要写进定价 JSON，也不要改后端硬编码。
 
 ## Pricing 相关文件
 
@@ -12,6 +13,27 @@ SubLB 自维护公开配置源。
 - `docs/pricing-raw-maintenance.md`（脚本/边界补充说明，不再重复主流程）
 - `scripts/verify-pricing-raw.sh`
 - `scripts/activate-pricing-pin.sh`（生产集群激活、逐节点回读与失败回滚的唯一入口）
+
+## 公开名单（publish，独立于定价）
+
+`/v1/models` 能否出现某个模型，由下面两个文件决定，和定价共用同一个 commit pin：
+
+- `catalog/public_supported_models.json`
+- `catalog/public_supported_models.sha256`
+
+标准步骤：
+
+```text
+编辑 catalog/public_supported_models.json
+  ↓
+shasum -a 256 catalog/public_supported_models.json | awk '{print $1}' > catalog/public_supported_models.sha256
+  ↓
+提交并 push
+  ↓
+后台 PUT /api/v1/admin/settings/pricing-config-commit（同一个 SHA）
+```
+
+可以只改 catalog、不改价格。账号 `model_mapping` 里没有该模型时，即使公开名单有它，`/v1/models` 也不会出现。 catalog 文件缺失时后端用硬编码兜底，不会让定价 pin 失败。
 
 ## 价格字段标准口径
 
