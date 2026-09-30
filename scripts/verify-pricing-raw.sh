@@ -99,6 +99,7 @@ required_gpt56 = {
     'gpt-5.6-terra': (2e-06, 1.2e-05, 2.5e-06, 2e-07),
     'gpt-5.6-luna': (2e-07, 1.2e-06, 2.5e-07, 2e-08),
     'gpt-6-astra': (1e-05, 5e-05, 1.25e-05, 1e-06),
+    'gpt-6.1-sol': (2e-06, 1e-05, 2.5e-06, 1e-07),
 }
 gpt56_keys = [
     'input_cost_per_token',
@@ -114,6 +115,25 @@ for model, expected in required_gpt56.items():
     if actual != expected:
         raise SystemExit(f'[pricing raw verify][错误] price_mismatch model={model} actual={actual} expected={expected}')
     print('[pricing raw verify] model_ok=' + model + ' ' + ' '.join(f'{k}={item.get(k)}' for k in gpt56_keys))
+
+sol61 = data.get('gpt-6.1-sol') or {}
+sol61_extra = {
+    'long_context_input_token_threshold': 272000,
+    'long_context_input_cost_multiplier': 2.0,
+    'long_context_output_cost_multiplier': 1.5,
+    'max_input_tokens': 1050000,
+    'max_output_tokens': 128000,
+}
+for key, expected in sol61_extra.items():
+    actual = sol61.get(key)
+    if actual != expected:
+        raise SystemExit(
+            f'[pricing raw verify][错误] price_mismatch model=gpt-6.1-sol key={key} '
+            f'actual={actual} expected={expected}'
+        )
+print('[pricing raw verify] model_ok=gpt-6.1-sol ' + ' '.join(
+    f'{key}={sol61.get(key)}' for key in sol61_extra
+))
 
 grok_models = {
     'grok-4.3': {
