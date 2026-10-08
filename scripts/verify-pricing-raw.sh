@@ -135,6 +135,29 @@ print('[pricing raw verify] model_ok=gpt-6.1-sol ' + ' '.join(
     f'{key}={sol61.get(key)}' for key in sol61_extra
 ))
 
+haiku55 = data.get('claude-haiku-5-5') or {}
+haiku55_fields = {
+    'input_cost_per_token': 1e-07,
+    'output_cost_per_token': 5e-07,
+    'cache_read_input_token_cost': 1e-08,
+    'cache_creation_input_token_cost': 1.25e-07,
+    'long_context_input_token_threshold': 100000,
+    'long_context_input_cost_multiplier': 5.0,
+    'long_context_output_cost_multiplier': 5.0,
+    'max_input_tokens': 1000000,
+    'max_output_tokens': 128000,
+}
+for key, expected in haiku55_fields.items():
+    actual = haiku55.get(key)
+    if actual != expected:
+        raise SystemExit(
+            f'[pricing raw verify][错误] price_mismatch model=claude-haiku-5-5 key={key} '
+            f'actual={actual} expected={expected}'
+        )
+print('[pricing raw verify] model_ok=claude-haiku-5-5 ' + ' '.join(
+    f'{key}={haiku55.get(key)}' for key in haiku55_fields
+))
+
 grok_models = {
     'grok-4.3': {
         'input_cost_per_token': 1.25e-06,
