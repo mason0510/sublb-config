@@ -1013,6 +1013,44 @@
     "supports_reasoning": true,
     "supports_tool_choice": true
   },
+  "deepseek-v4-flash": {
+    "cache_creation_input_token_cost": 1.4e-07,
+    "cache_read_input_token_cost": 2.8e-09,
+    "input_cost_per_token": 1.4e-07,
+    "litellm_provider": "deepseek",
+    "max_input_tokens": 1000000,
+    "max_output_tokens": 384000,
+    "max_tokens": 384000,
+    "mode": "chat",
+    "output_cost_per_token": 2.8e-07,
+    "source": "SubLB maintained pricing; same card as deepseek-v4-flash Go fallback, not the 2026-10 official Flash card",
+    "supported_endpoints": [
+      "/v1/chat/completions",
+      "/v1/responses"
+    ],
+    "supports_function_calling": true,
+    "supports_prompt_caching": true,
+    "supports_vision": true
+  },
+  "deepseek-v4.1-flash": {
+    "cache_creation_input_token_cost": 1.4e-07,
+    "cache_read_input_token_cost": 2.8e-09,
+    "input_cost_per_token": 1.4e-07,
+    "litellm_provider": "deepseek",
+    "max_input_tokens": 1000000,
+    "max_output_tokens": 384000,
+    "max_tokens": 384000,
+    "mode": "chat",
+    "output_cost_per_token": 2.8e-07,
+    "source": "SubLB maintained pricing; same card as deepseek-v4-flash Go fallback, not the 2026-10 official Flash card",
+    "supported_endpoints": [
+      "/v1/chat/completions",
+      "/v1/responses"
+    ],
+    "supports_function_calling": true,
+    "supports_prompt_caching": true,
+    "supports_vision": true
+  },
   "gemini-1.0-pro": {
     "input_cost_per_character": 1.25e-07,
     "input_cost_per_image": 0.0025,
