@@ -3401,6 +3401,45 @@
     "supports_vision": true,
     "supports_web_search": true
   },
+  "gemini-4-argon": {
+    "cache_read_input_token_cost": 1e-7,
+    "input_cost_per_audio_token": 2e-6,
+    "input_cost_per_token": 2e-6,
+    "litellm_provider": "vertex_ai-language-models",
+    "max_output_tokens": 1048576,
+    "max_tokens": 1048576,
+    "mode": "chat",
+    "output_cost_per_reasoning_token": 1e-5,
+    "output_cost_per_token": 1e-5,
+    "source": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing Gemini 4 Argon standard global through 2026-11-30: input $2, output $10, cached input $0.10 per 1M. No separate cache-write SKU published. Does not auto-switch to the 2026-12-01 standard rate of input $4 / output $20 / cached input $0.20.",
+    "supported_endpoints": [
+      "/v1/chat/completions",
+      "/v1/completions",
+      "/v1/batch"
+    ],
+    "supported_modalities": [
+      "text",
+      "image",
+      "audio",
+      "video"
+    ],
+    "supported_output_modalities": [
+      "text"
+    ],
+    "supports_audio_input": true,
+    "supports_function_calling": true,
+    "supports_native_streaming": true,
+    "supports_pdf_input": true,
+    "supports_prompt_caching": true,
+    "supports_reasoning": true,
+    "supports_response_schema": true,
+    "supports_system_messages": true,
+    "supports_tool_choice": true,
+    "supports_url_context": true,
+    "supports_video_input": true,
+    "supports_vision": true,
+    "supports_web_search": true
+  },
   "gemini-embedding-001": {
     "input_cost_per_token": 1.5e-07,
     "litellm_provider": "vertex_ai-embedding-models",
