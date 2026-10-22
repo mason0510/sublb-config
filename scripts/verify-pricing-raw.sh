@@ -195,6 +195,18 @@ grok_models = {
         'output_cost_per_token_above_200k_tokens': 1.2e-05,
         'max_input_tokens': 500000,
     },
+    'grok-4.7-build-fast': {
+        'input_cost_per_token': 4e-06,
+        'cache_read_input_token_cost': 1e-06,
+        'output_cost_per_token': 1.2e-05,
+        'input_cost_per_token_above_200k_tokens': 6e-06,
+        'cache_read_input_token_cost_above_200k_tokens': 1.5e-06,
+        'output_cost_per_token_above_200k_tokens': 1.8e-05,
+        'long_context_input_token_threshold': 200000,
+        'long_context_input_cost_multiplier': 1.5,
+        'long_context_output_cost_multiplier': 1.5,
+        'max_input_tokens': 500000,
+    },
     'grok-4.20-beta': {
         'input_cost_per_token': 1.25e-06,
         'cache_read_input_token_cost': 2e-07,
