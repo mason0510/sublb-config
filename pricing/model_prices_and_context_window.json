@@ -7404,6 +7404,32 @@
       "sort_order": 40
     }
   },
+  "kimi-k3.1-pro": {
+    "cache_creation_input_token_cost": 2e-06,
+    "cache_creation_input_token_cost_above_1hr": 4e-06,
+    "cache_read_input_token_cost": 2e-07,
+    "input_cost_per_token": 2e-06,
+    "output_cost_per_token": 1e-05,
+    "litellm_provider": "moonshot",
+    "mode": "chat",
+    "max_input_tokens": 1048576,
+    "max_output_tokens": 131072,
+    "supports_function_calling": true,
+    "supports_prompt_caching": true,
+    "supports_vision": true,
+    "public_catalog": {
+      "visible": true,
+      "display_only": false,
+      "category": "standard",
+      "description": "Kimi K3.1 Pro。官方人民币价（2026-10-27 platform.kimi.com/docs/pricing/chat）：输入 ¥13/1M、输出 ¥68/1M、缓存命中 ¥1.30/1M、缓存写入 5min ¥13/1M、1h ¥26/1M。计费按美元口径 $2 / $10 / $0.20 / $2 / $4 per 1M，上下文 1048576，不按长度分段。",
+      "tags": [
+        "文本",
+        "旗舰",
+        "缓存"
+      ],
+      "sort_order": 39
+    }
+  },
   "agnes-1.5-flash": {
     "input_cost_per_token": 1e-06,
     "output_cost_per_token": 1e-06,
