@@ -30,7 +30,6 @@ OLD_MODEL_B64=""
 # 默认生产拓扑。价格更新必须逐实例触发内存安装，不能只写共享 pin 后等待定时器。
 CLUSTER_NODES=(
   "prod-main|us-main-01-admin-direct|sub2api-80.service|/srv/sub2api-80/shared/data/pricing"
-  "prod-third|ovh-singapore-254|sublb.service|/srv/sublb/prod-main/data/pricing"
   "prod-forth|ovh-ca-192|sub2api-prod-forth.service|/srv/sub2api/data/pricing"
   "prod-dogyun|prod-dogyun|sub2api-prod.service|/srv/sublb/prod/shared/data/pricing"
 )
@@ -57,7 +56,7 @@ usage() {
 
 --dry-run 会完成 raw、鉴权与各节点只读 preflight，不会发送 PUT。
 --single-instance 仅供非集群维护；对默认生产站点使用时不会形成集群生效证明。
---node 与 --single-instance 一起使用时，仅通过该节点 SSH + loopback 激活；当前节点标签：prod-main、prod-third、prod-forth、prod-dogyun。
+--node 与 --single-instance 一起使用时，仅通过该节点 SSH + loopback 激活；当前节点标签：prod-main、prod-forth、prod-dogyun。prod-third（51.79.158.64）已于 2026-10-27 停租，不在列表内。
 默认仅适用于 https://sub-lb.tap365.org；其他站点必须显式传 --key-var，禁止跨站复用 key。
 EOF
 }
@@ -381,8 +380,11 @@ fi
 [[ "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]] || die "--commit 必须是 40 位小写十六进制 commit SHA"
 [[ -n "$MODEL" ]] || die "--model 不能为空"
 [[ -n "$EVIDENCE_DIR" ]] || die "--evidence-dir 不能为空"
-if [[ -n "$TARGET_NODE" && "$TARGET_NODE" != "prod-main" && "$TARGET_NODE" != "prod-third" && "$TARGET_NODE" != "prod-forth" && "$TARGET_NODE" != "prod-dogyun" ]]; then
-  die "--node 仅支持 prod-main、prod-third、prod-forth、prod-dogyun"
+if [[ "$TARGET_NODE" == "prod-third" || "$TARGET_NODE" == "ovh-singapore" || "$TARGET_NODE" == "ovh-singapore-254" ]]; then
+  die "prod-third（51.79.158.64）已于 2026-10-27 停租并归档，不再 pin"
+fi
+if [[ -n "$TARGET_NODE" && "$TARGET_NODE" != "prod-main" && "$TARGET_NODE" != "prod-forth" && "$TARGET_NODE" != "prod-dogyun" ]]; then
+  die "--node 仅支持 prod-main、prod-forth、prod-dogyun"
 fi
 if [[ -n "$TARGET_NODE" && "$SINGLE_INSTANCE" == false ]]; then
   die "--node 必须与 --single-instance 一起使用"
@@ -401,10 +403,10 @@ API_KEY="$(load_env_value "$ENV_FILE" "$KEY_VAR")"
 if [[ "$SINGLE_INSTANCE" == true && -n "$TARGET_NODE" ]]; then
   case "$TARGET_NODE" in
     prod-main) CLUSTER_NODES=("prod-main|us-main-01-admin-direct|sub2api-80.service|/srv/sub2api-80/shared/data/pricing") ;;
-    prod-third) CLUSTER_NODES=("prod-third|ovh-singapore-254|sublb.service|/srv/sublb/prod-main/data/pricing") ;;
     prod-forth) CLUSTER_NODES=("prod-forth|ovh-ca-192|sub2api-prod-forth.service|/srv/sub2api/data/pricing") ;;
     prod-dogyun) CLUSTER_NODES=("prod-dogyun|prod-dogyun|sub2api-prod.service|/srv/sublb/prod/shared/data/pricing") ;;
-    *) die "--node 未知标签：$TARGET_NODE（可用：prod-main、prod-third、prod-forth、prod-dogyun）" ;;
+    prod-third|ovh-singapore|ovh-singapore-254) die "prod-third（51.79.158.64）已于 2026-10-27 停租并归档，不再 pin" ;;
+    *) die "--node 未知标签：$TARGET_NODE（可用：prod-main、prod-forth、prod-dogyun）" ;;
   esac
 fi
 

@@ -26,7 +26,7 @@
    - 目标模型条目存在，且输入、缓存输入、输出价格及所有上下文分档字段与预期一致；
    - raw 文件下载成功，目录 raw URL 不是 200；
    - `origin/master` 已指向该固定 commit，工作区干净。
-   - 使用 `scripts/activate-pricing-pin.sh` 完成生产实例的集群激活，节点以脚本 `CLUSTER_NODES` 为准，当前含 `prod-main`、`prod-third`、`prod-forth`、`prod-dogyun`；
+   - 使用 `scripts/activate-pricing-pin.sh` 完成生产实例的集群激活，节点以脚本 `CLUSTER_NODES` 为准，当前含 `prod-main`、`prod-forth`、`prod-dogyun`；`prod-third` 已归档；
    - 各节点运行时 `model_pricing.json/.sha256/.commit`、目标模型四类价格一致；
    - 激活后的真实 usage 记录按新价格计费。
 
@@ -54,7 +54,7 @@
 ## ChainFuel 生产节点登记（2026-09-03）
 
 - `prod-main`：生产主入口，历史运行地址 `51.79.158.64`；当前主服务器管理 SSH：`us-main-01-admin-direct`（`82.29.54.80`），服务端口 `48090`，运行价格目录 `/srv/sub2api-80/shared/data/pricing`。
-- `prod-third`：`51.79.158.64`，新加坡生产节点（兼预发布/测试）；SSH 别名 `ovh-51-79-158-64-via-cn-tencent`，服务 `sublb.service`，运行价格目录 `/srv/sublb/prod-main/data/pricing`。
+- `prod-third`：已归档。公网 `51.79.158.64` 于 2026-10-27 停止租赁，不再进入 `CLUSTER_NODES`。原服务 `sublb.service`，原价格目录 `/srv/sublb/prod-main/data/pricing`，原 SSH `ovh-singapore-254`。
 - `prod-forth`：`192.99.71.43`，独立负载节点；SSH 别名：`ovh-ca-192`（用户 `ubuntu`，端口 `49222`）；运行服务 `sub2api-prod-forth.service`，价格目录 `/srv/sub2api/data/pricing`。
 - `prod-dogyun`：`43.247.132.232`，狗云 HK 生产节点；SSH 别名 `prod-dogyun`（用户 `admin`，端口 `22`）；运行服务 `sub2api-prod.service`，价格目录 `/srv/sublb/prod/shared/data/pricing`，loopback `127.0.0.1:48090`。
 - 定价发布必须按 `CLUSTER_NODES` 逐一执行 pin 激活与运行时 readback；不得以单节点结果代表列表内实例全部生效。
