@@ -26,8 +26,8 @@
    - 目标模型条目存在，且输入、缓存输入、输出价格及所有上下文分档字段与预期一致；
    - raw 文件下载成功，目录 raw URL 不是 200；
    - `origin/master` 已指向该固定 commit，工作区干净。
-   - 使用 `scripts/activate-pricing-pin.sh` 完成三个生产实例的集群激活；
-   - 三节点运行时 `model_pricing.json/.sha256/.commit`、目标模型四类价格一致；
+   - 使用 `scripts/activate-pricing-pin.sh` 完成生产实例的集群激活，节点以脚本 `CLUSTER_NODES` 为准，当前含 `prod-main`、`prod-third`、`prod-forth`、`prod-dogyun`；
+   - 各节点运行时 `model_pricing.json/.sha256/.commit`、目标模型四类价格一致；
    - 激活后的真实 usage 记录按新价格计费。
 
 禁止仅凭本地 JSON、GitHub 页面可打开或 HTTP 200 宣布发布完成；未通过固定 commit raw readback，不得认为 pricing 已发布。
@@ -47,8 +47,8 @@
   生产激活必须使用 `scripts/activate-pricing-pin.sh` 逐实例 loopback PUT，不得只调用一次公网 PUT。
 - 脚本必须从运行进程的 `PRICING_DATA_DIR` / `DATA_DIR` 确认真实路径，并逐节点回读
   `model_pricing.json`、`.sha256`、`.commit` 与目标模型四类价格。
-- 三节点写同一个共享 pin，存在同一资源写冲突，固定串行；任一节点失败即按旧 commit 回滚。
-- 退出码 0、单次 `activated=true`、active pin 正确均不单独代表价格已生产生效；必须有三节点
+- `CLUSTER_NODES` 里的节点写同一个共享 pin，存在同一资源写冲突，固定串行；任一节点失败即按旧 commit 回滚。
+- 退出码 0、单次 `activated=true`、active pin 正确均不单独代表价格已生产生效；必须有列表内每个节点
   一致性和激活后真实 usage 计费证据。
 
 ## ChainFuel 生产节点登记（2026-09-03）
@@ -56,7 +56,8 @@
 - `prod-main`：生产主入口，历史运行地址 `51.79.158.64`；当前主服务器管理 SSH：`us-main-01-admin-direct`（`82.29.54.80`），服务端口 `48090`，运行价格目录 `/srv/sub2api-80/shared/data/pricing`。
 - `prod-third`：`51.79.158.64`，新加坡生产节点（兼预发布/测试）；SSH 别名 `ovh-51-79-158-64-via-cn-tencent`，服务 `sublb.service`，运行价格目录 `/srv/sublb/prod-main/data/pricing`。
 - `prod-forth`：`192.99.71.43`，独立负载节点；SSH 别名：`ovh-ca-192`（用户 `ubuntu`，端口 `49222`）；运行服务 `sub2api-prod-forth.service`，价格目录 `/srv/sub2api/data/pricing`。
-- 定价发布必须按节点逐一执行 pin 激活与运行时 readback；不得以单节点结果代表三个实例全部生效。
+- `prod-dogyun`：`43.247.132.232`，狗云 HK 生产节点；SSH 别名 `prod-dogyun`（用户 `admin`，端口 `22`）；运行服务 `sub2api-prod.service`，价格目录 `/srv/sublb/prod/shared/data/pricing`，loopback `127.0.0.1:48090`。
+- 定价发布必须按 `CLUSTER_NODES` 逐一执行 pin 激活与运行时 readback；不得以单节点结果代表列表内实例全部生效。
 
 ### SSH 角色更正（2026-09-03）
 
