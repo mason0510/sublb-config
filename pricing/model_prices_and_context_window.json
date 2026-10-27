@@ -7579,6 +7579,38 @@
       "sort_order": 6
     }
   },
+  "gpt-6.1-terra": {
+    "litellm_provider": "openai",
+    "mode": "chat",
+    "max_input_tokens": 1050000,
+    "max_output_tokens": 128000,
+    "supports_function_calling": true,
+    "supports_parallel_function_calling": true,
+    "supports_prompt_caching": true,
+    "supports_response_schema": true,
+    "supports_system_messages": true,
+    "supports_tool_choice": true,
+    "long_context_input_token_threshold": 272000,
+    "long_context_input_cost_multiplier": 2.0,
+    "long_context_output_cost_multiplier": 1.5,
+    "input_cost_per_token": 1e-06,
+    "output_cost_per_token": 5e-06,
+    "cache_creation_input_token_cost": 1.25e-06,
+    "cache_read_input_token_cost": 5e-08,
+    "source": "https://developers.openai.com/api/docs/models/gpt-6.1-terra",
+    "public_catalog": {
+      "visible": true,
+      "category": "standard",
+      "description": "GPT-6.1 Terra。标准价输入 $1/M、缓存读取 $0.05/M、30 分钟缓存写入 $1.25/M、输出 $5/M。输入超过 272K 时输入和缓存按 2 倍、输出按 1.5 倍。Batch/Flex 与 Fast 由既有倍率覆盖。",
+      "tags": [
+        "均衡",
+        "编程",
+        "代理",
+        "缓存"
+      ],
+      "sort_order": 7
+    }
+  },
   "gpt-6-luna": {
     "litellm_provider": "openai",
     "mode": "chat",
